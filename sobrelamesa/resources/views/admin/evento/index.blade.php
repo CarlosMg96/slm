@@ -81,7 +81,7 @@
 
                         <div class="col-xs-12 col-sm-6 col-md-4">
                             <div class="form-group">
-                                <label for="name">Fecha Evento</label>
+                                <label for="name">Fecha Evento </label>
                                 <!--<input type="text" class="form-control" name="fecha_evento" id="fecha_evento">-->
                                 <input type="date" class="form-control" id="fecha_evento" name="fecha_evento" value="{{date('Y-m-d')}}"/>
                             </div>
@@ -582,7 +582,7 @@
                                     <th>Tipo Evento</th>
                                     <th>Número Personas</th>
                                     <th>Status</th>
-                                    <th>Fecha Evento</th>
+                                    <th>Fecha Evento </th>
                                     <th>Fecha Entrega</th> 
                                     <th>Fecha Recolección</th>
                                     <th>Domicilio Entrega</th>
@@ -635,7 +635,7 @@
 	});
 
     $(document).ready(function () {
-    	console.log('document ready');
+    	console.log('documento listo'  );
         //get_config();
         //Date range picker
         $('#reservation').daterangepicker({
@@ -767,8 +767,10 @@
                         }else{
                             datatime_recoleccion = "Sin fecha u Hora, favor de verificar";
                         }
+                   
 
                         listEventos.push(evento);
+                        console.log("Hola mundo");
                         datos.push(
                             key,
                             '00'+evento.id,
@@ -1021,6 +1023,7 @@
     });
 
     function details_event(key){
+        console.log("detalles del evento");
         var Data = new FormData();
         Data.append('_token', "{{ csrf_token() }}");
         Data.append('id', listEventos[key].id);
@@ -1042,6 +1045,7 @@
                 if(listEventos[key].fecha_evento != "" && listEventos[key].hora_evento != ""){
                     datatime_evento = moment(evento.fecha_evento+' '+evento.hora_evento).format('LLLL');
                 }else{
+                    console.log('Vamos de nuevo');
                     datatime_evento = "Sin fecha u Hora, favor de verificar";
                 }
 
@@ -1062,7 +1066,7 @@
                 $('#list_products').empty();
                 $('#lbl_url_seguimiento').val(listEventos[key].url_seguimiento);
                 $('#lbl_title_modal_details').text('Detalles No. de Evento: 00'+listEventos[key].id);
-                $('#lbl_fecha_cotizacion').text('Fecha de Cotización: '+moment(listEventos[key].fecha_cotizacion).format('LLLL'));
+                $('#lbl_fecha_cotizacion').text('Fecha de Cotización: '+moment(listEventos[key].fecha_cotizacion).format('LLLLL'));
                 $('#btn_whatsapp').attr('onclick','compartir_whatsapp('+key+')');
                 $('#btn_correo').attr('onclick','compartir_correo('+key+')');
                 $('#lbl_info_client').append(
@@ -1073,12 +1077,13 @@
                     +'Email: '+listEventos[key].correo_electronico+'</address>');
                 $('#lbl_dates_client').append(
                     '<b>No. de Cotización #00'+listEventos[key].id+'</b><br>'
-                    +'<br><b>Fecha de Evento: </b> '+datatime_evento+'<br>'
-                    +'<b>Fecha de Entrega:</b> '+datatime_entrega+'<br>'
-                    +'<b>Fecha de Recolección:</b> '+datatime_recoleccion);
+                    +'<br><b>Fecha de Evento: </b> '+moment(listEventos[key].fecha_evento).format('LLLL')+'<br>'
+                    +'<b>Fecha de Entrega:</b> '+moment(listEventos[key].fecha_entrega).format('LLLL')+'<br>'
+                    +'<b>Fecha de Recolección:</b> '+moment(listEventos[key].fecha_recoleccion).format('LLLL'));
                 // JavaScript program to illustrate 
                     // calculation of no. of days between two date 
-
+                        console.log("Fechas modal arriba");
+                    //    console.log(moment(datatime_entrega.format('LLLL')));
                     // To set two dates to two variables
                     var date1 = new Date(listEventos[key].fecha_evento);
                     var date2 = new Date(listEventos[key].fecha_recoleccion);
@@ -1243,6 +1248,7 @@
     $("#form_add_evento").submit(function(e){
     	e.preventDefault();
     	var Data = new FormData(this);
+        console.log("Formulario de añadir evento");
     	Data.append('_token',"{{ csrf_token() }}");
 
     	$.ajax({

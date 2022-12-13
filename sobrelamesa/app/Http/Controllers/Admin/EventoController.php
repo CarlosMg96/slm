@@ -732,6 +732,7 @@ class EventoController extends Controller
     }
 
     public function form_edit_evento(Request $request){
+        $out = new \Symfony\Component\Console\Output\ConsoleOutput();
 
         $objectEvento = Evento::find($request->evento_id);
         $objectEvento->fecha_cotizacion = $request->fecha_cotizacion;
@@ -755,7 +756,8 @@ class EventoController extends Controller
             'status'=>true,
             'responseEvento'=>$objectEvento
         ));
-
+        $out->writeln("Función accedida");
+        
     }
 
     public function insert_detalle_evento_edit(Request $request){

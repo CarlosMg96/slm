@@ -114,9 +114,14 @@ setlocale(LC_ALL,"es_CO.utf8");
                   <b>Fecha de Evento: </b> <br>
                   <?php  
                             $newDateEvento = date("d-m-Y", strtotime($objectEvento[0]->fecha_evento)); 
-                            $mesDescEvento = strftime("%A, %d de %B de %Y", strtotime($newDateEvento)); 
-                            echo $mesDescEvento.' '.$objectEvento[0]->hora_evento; 
-                          ?><br>
+                            $mesDescEvento = strftime("%A, %d de %B de %Y", strtotime($newDateEvento));
+                          Log::info("message");
+                         
+                           echo $mesDescEvento.' '.$objectEvento[0]->hora_evento; 
+                     //     $fecha_e = moment(listEventos[key].fecha_evento).format('LLLL');
+                     //    echo  $newDateEvento;
+                          ?>
+                          <br>
                   <b>Fecha de Entrega:</b> <br>
                   <?php  
                             $newDateEntrega = date("d-m-Y", strtotime($objectEvento[0]->fecha_entrega)); 
