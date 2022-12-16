@@ -49,12 +49,6 @@ class ProductoController extends Controller
           'producto.*',
           'categoria_producto.categoria'      
         )
-        ->where(isNull('producto.costo'))
-        ->where('producto.costo', "IS NOT NULL" )
-        ->where(isNull('producto.precio_renta'))
-        ->where('producto.precio_renta', "IS NOT NULL" )
-        ->where(isNull('producto.reposicion'))
-        ->where('producto.reposicion', "IS NOT NULL" )
         ->orderBy('producto.id','DESC')
         ->get();
         
@@ -259,6 +253,7 @@ class ProductoController extends Controller
           'producto.*',
           'categoria_producto.categoria'      
         )
+        ->whereNotNull('clave')
         ->orderBy('producto.id','DESC')
         ->get();
 
