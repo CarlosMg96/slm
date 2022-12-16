@@ -36,7 +36,7 @@
         <input type="hidden" id="evento_id" name="evento_id" value="{{$evento_id}}">
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-          <button onclick="console.log("Hola")" type="submit" class="btn btn-primary" >Aceptar Cotización</button>
+          <button type="submit" class="btn btn-primary" >Aceptar Cotización</button>
         </div>
       </form>
     </div>
@@ -518,12 +518,14 @@ setlocale(LC_ALL,"es_CO.utf8");
     }
 
     function form_aceptar_cotizacion(){
-      const firma = signaturePad.toDataURL('image/png');
+      const firma = signaturePad.toDataURL();
+ //     console.log("Firma esta haciendo la conversión a png 2" + firma);
+      //Aqupi no esta el problema, esta en la función de abajo
         var Data = new FormData(this);
         Data.append('_token',"{{ csrf_token() }}");
         Data.append('firma', firma);  
 
-        //alert("Estas en el botton");
+      //  alert("Estas en el botton");
 
         $.ajax({
             method:'POST',
@@ -543,6 +545,7 @@ setlocale(LC_ALL,"es_CO.utf8");
                 signaturePad.clear();
                 signaturePad.on();
                 $('#btn_autoriza_cotizacion').attr('disabled','disabled');
+
                 //toastr.success('La cotización fue autorizada con exito');
               }else{
                 
@@ -555,13 +558,15 @@ setlocale(LC_ALL,"es_CO.utf8");
     $("#form_aceptar_cotizacion").submit(function(e){
         e.preventDefault();
         //alert("Estas en el botton");
-        const firma = signaturePad.toDataURL('image/png');
+        console.log("Entro a la función");
+        const firma = signaturePad.toDataURL();
+     //   console.log(firma);
         var Data = new FormData(this);
         Data.append('_token',"{{ csrf_token() }}");
         Data.append('firma', firma);  
 
         //alert("Estas en el botton");
-
+          //Si se hace el post pero al vizualizarlo en la base de datos no se muestra
         $.ajax({
             method:'POST',
             url: "{{route('evento.confirm_evento')}}",
@@ -581,8 +586,9 @@ setlocale(LC_ALL,"es_CO.utf8");
                 signaturePad.on();
                 $('#btn_autoriza_cotizacion').attr('disabled','disabled');
                 //toastr.success('La cotización fue autorizada con exito');
+                alert("La cotización fue autorizada con exito");
               }else{
-                
+                alert("Hubo un error intentelo de nuevo");
               }
               $('#modal_firma_cotizacion').modal('hide');
             }

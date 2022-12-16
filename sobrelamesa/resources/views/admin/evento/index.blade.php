@@ -993,9 +993,14 @@
         $('#btn_confirm_modal_2').text('Registrar');
     }
 
+    //Esta para la firma funciona bien
     function view_firma_autorizado(key){
         $('#img_firma_autorizacion').attr("src", "images/firmas/"+listEventos[key].firma);
+   //  $('#img_firma_autorizacion').attr("src", "data:"+sig.jSignature('getData'));
         $('#modal_view_firma_autorizacion').modal('show');
+        console.log("Clic en la vizualización de la firma");
+        console.log("src", "images/firmas/"+listEventos[key].firma);
+        console.log(key);
     }
 
     $("#form_add_pago").submit(function(e){
@@ -1066,7 +1071,7 @@
                 $('#list_products').empty();
                 $('#lbl_url_seguimiento').val(listEventos[key].url_seguimiento);
                 $('#lbl_title_modal_details').text('Detalles No. de Evento: 00'+listEventos[key].id);
-                $('#lbl_fecha_cotizacion').text('Fecha de Cotización: '+moment(listEventos[key].fecha_cotizacion).format('LLLLL'));
+                $('#lbl_fecha_cotizacion').text('Fecha de Cotización: ' + moment(listEventos[key].fecha_cotizacion).format('LLLL'));
                 $('#btn_whatsapp').attr('onclick','compartir_whatsapp('+key+')');
                 $('#btn_correo').attr('onclick','compartir_correo('+key+')');
                 $('#lbl_info_client').append(
@@ -1077,12 +1082,15 @@
                     +'Email: '+listEventos[key].correo_electronico+'</address>');
                 $('#lbl_dates_client').append(
                     '<b>No. de Cotización #00'+listEventos[key].id+'</b><br>'
-                    +'<br><b>Fecha de Evento: </b> '+moment(listEventos[key].fecha_evento).format('LLLL')+'<br>'
+                    +'<br><b>Fecha de Evento: </b> '+moment(listEventos[key].fecha_evento).format('LLLL') +'<br>'
                     +'<b>Fecha de Entrega:</b> '+moment(listEventos[key].fecha_entrega).format('LLLL')+'<br>'
                     +'<b>Fecha de Recolección:</b> '+moment(listEventos[key].fecha_recoleccion).format('LLLL'));
                 // JavaScript program to illustrate 
                     // calculation of no. of days between two date 
                         console.log("Fechas modal arriba");
+                        console.log(fecha_evento.value);
+                        console.log(fecha_cotizacion.value);
+                    //    console.log(hora_evento);
                     //    console.log(moment(datatime_entrega.format('LLLL')));
                     // To set two dates to two variables
                     var date1 = new Date(listEventos[key].fecha_evento);

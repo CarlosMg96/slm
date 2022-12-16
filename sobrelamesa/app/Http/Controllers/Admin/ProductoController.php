@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\CategoriaProducto;
 use Illuminate\Support\Facades\DB;
 use App\Producto;
+use Hamcrest\Core\IsNull;
+use Mockery\Matcher\Not;
 
 class ProductoController extends Controller
 {
@@ -28,16 +30,46 @@ class ProductoController extends Controller
         date_default_timezone_set('America/Mexico_City');
         $fecha_actual = date('Y-m-d', $fecha);
         //$objectCliente = Cliente::where('status',1)->orderBy('id','DESC')->get();
+        // $objectProducto = DB::table('producto')
+        // ->join('categoria_producto','producto.categoria_producto_id','=','categoria_producto.id')            
+        // ->where('producto.status',1)        
+        // ->select(
+        //   'producto.*',
+        //   'categoria_producto.categoria'      
+        // )
+        // ->orderBy('producto.id','DESC')
+        // ->get();
+
+
+        //Aquí se filtran los resultados de la conversión
         $objectProducto = DB::table('producto')
         ->join('categoria_producto','producto.categoria_producto_id','=','categoria_producto.id')            
-        ->where('producto.status',1)        
+        ->where('producto.status',1)  
         ->select(
           'producto.*',
           'categoria_producto.categoria'      
         )
+        ->where(isNull('producto.costo'))
+        ->where('producto.costo', "IS NOT NULL" )
+        ->where(isNull('producto.precio_renta'))
+        ->where('producto.precio_renta', "IS NOT NULL" )
+        ->where(isNull('producto.reposicion'))
+        ->where('producto.reposicion', "IS NOT NULL" )
         ->orderBy('producto.id','DESC')
         ->get();
+        
+        // $objectProductoDB = $objectProducto::whereNotNull('costo')
+        // ->join('categoria_producto','producto.categoria_producto_id','=','categoria_producto.id')            
+        // ->where('producto.status',1)  
+        // ->select(
+        //   'producto.*',
+        //   'categoria_producto.categoria'      
+        // )
+        // ->where(isNull('medidas'))
+        // ->orderBy('producto.id','DESC')
+        // ->get();
 
+        // El foreach esta procesando los resultados de la tabla de proiductos
         foreach ($objectProducto as $key => $producto) {
             /*
                 *AGREGAREMOS LOS DOS NUEVOS VALORES
