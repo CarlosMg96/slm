@@ -691,16 +691,15 @@ class EventoController extends Controller
 
     public function confirm_evento(Request $request){
         //dd($request->all());
-        //print_r($request->all());
+    //    print_r($request->all());
 
         $objectEvento = Evento::find($request->evento_id);
         $objectEvento->estatus = 3;
         $objectEvento->save();
 
-
         echo json_encode(array(
             'status'=>true,
-            //'objectEvento'=>$objectEvento
+        //    'objectEvento'=>$objectEvento
         ));
 
 
@@ -708,13 +707,13 @@ class EventoController extends Controller
 
 
 
-        /*$objectEvento = Evento::find($request->evento_id);
+        $objectEvento = Evento::find($request->evento_id);
 
         $imgData = base64_decode(substr($request->firma,22)); 
         $image_name= $request->evento_id.'-'.time();
-        // URL EN DONDE SE GUARDARA LA IMAGEN DE LA FIRMA
+     //   URL EN DONDE SE GUARDARA LA IMAGEN DE LA FIRMA
         $filePath = 'images/firmas/'.$image_name.'.png';
-        // Write $imgData into the image file
+     //   Write $imgData into the image file
         $file = fopen($filePath, 'wb');
         fwrite($file, $imgData);
         fclose($file); 
@@ -723,10 +722,10 @@ class EventoController extends Controller
         $objectEvento->estatus = 3;
         $objectEvento->save();       
 
-        echo json_encode(array(
-            'status'=>true,
-            'objectEvento'=>$objectEvento
-        ));*/
+        // echo json_encode(array(
+        //     'status'=>true,
+        //     'objectEvento'=>$objectEvento
+        // ));
     }
 
     public function edit_evento($idCotizacion){

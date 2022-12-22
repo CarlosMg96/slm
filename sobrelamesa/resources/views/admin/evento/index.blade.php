@@ -993,7 +993,7 @@
         $('#btn_confirm_modal_2').text('Registrar');
     }
 
-    //Esta para la firma funciona bien
+    //Esta función sirve para vizualizar la imagen de la firma que esta en un formato png.
     function view_firma_autorizado(key){
         $('#img_firma_autorizacion').attr("src", "images/firmas/"+listEventos[key].firma);
    //  $('#img_firma_autorizacion').attr("src", "data:"+sig.jSignature('getData'));

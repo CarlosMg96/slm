@@ -518,12 +518,10 @@ setlocale(LC_ALL,"es_CO.utf8");
     }
 
     function form_aceptar_cotizacion(){
-      const firma = signaturePad.toDataURL();
- //     console.log("Firma esta haciendo la conversión a png 2" + firma);
-      //Aqupi no esta el problema, esta en la función de abajo
+      const firma = signaturePad.toDataURL('image/png');
         var Data = new FormData(this);
         Data.append('_token',"{{ csrf_token() }}");
-        Data.append('firma', firma);  
+        Data.append('firma', firma);   
 
       //  alert("Estas en el botton");
 
@@ -535,36 +533,38 @@ setlocale(LC_ALL,"es_CO.utf8");
             processData : false,
             contentType : false,
             beforeSend : function(){
-              alert("beforeSend");
+            //  alert("beforeSend");
             },
             success: function(response)
             {    
               //alert("success");
+        //      console.log("Quiero saber si aquí pasa?");
               if(response.status) {
                 $("#form_aceptar_cotizacion")[0].reset();
                 signaturePad.clear();
                 signaturePad.on();
                 $('#btn_autoriza_cotizacion').attr('disabled','disabled');
 
-                //toastr.success('La cotización fue autorizada con exito');
+                toastr.success('La cotización fue autorizada con exito');
               }else{
                 
               }
               $('#modal_firma_cotizacion').modal('hide');
             }
+            
         });
     }
 
     $("#form_aceptar_cotizacion").submit(function(e){
         e.preventDefault();
         //alert("Estas en el botton");
-        console.log("Entro a la función");
+      //  console.log("Entro a la función de la aceptación de la cotización");
         const firma = signaturePad.toDataURL();
      //   console.log(firma);
         var Data = new FormData(this);
         Data.append('_token',"{{ csrf_token() }}");
         Data.append('firma', firma);  
-
+ //     console.log("Se guardo la firma");
         //alert("Estas en el botton");
           //Si se hace el post pero al vizualizarlo en la base de datos no se muestra
         $.ajax({
@@ -575,23 +575,29 @@ setlocale(LC_ALL,"es_CO.utf8");
             processData : false,
             contentType : false,
             beforeSend : function(){
-              //alert("beforeSend");
+           //   alert("beforeSend");
             },
             success: function(response)
-            {    
-              //alert("success");
+            {   
               if(response.status) {
                 $("#form_aceptar_cotizacion")[0].reset();
                 signaturePad.clear();
                 signaturePad.on();
+                toastr.success('La cotización fue autorizada con exito');
                 $('#btn_autoriza_cotizacion').attr('disabled','disabled');
                 //toastr.success('La cotización fue autorizada con exito');
-                alert("La cotización fue autorizada con exito");
+           //     alert("La cotización fue autorizada con exito");
               }else{
                 alert("Hubo un error intentelo de nuevo");
               }
               $('#modal_firma_cotizacion').modal('hide');
-            }
+            },
+            error: function(xhr, status, error) {
+              console.log("Hubo un error en la petición");
+              console.log(status);
+              console.log(error);
+
+  }
         });
     });
 
