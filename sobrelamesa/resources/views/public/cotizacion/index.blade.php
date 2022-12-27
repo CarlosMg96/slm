@@ -593,9 +593,7 @@ setlocale(LC_ALL,"es_CO.utf8");
               $('#modal_firma_cotizacion').modal('hide');
             },
             error: function(xhr, status, error) {
-              console.log("Hubo un error en la petición");
-              console.log(status);
-              console.log(error);
+              console.log("Hubo un error en la petición! Contactesé inmediatamente con el soporte técnico");
 
   }
         });

@@ -97,10 +97,12 @@ class EventoController extends Controller
           'producto.*',
           'categoria_producto.categoria'        
         )
-     //   ->whereNotNull('medidas')
+    //    ->whereNotNull('medidas')
         ->whereNotNull('costo')
         ->whereNotNull('precio_reposicion')
         ->whereNotNull('precio_renta')
+        ->Where('precio_renta', '>', 0)
+    //    ->where('disponible', '>', 0)
         ->orderBy('producto.id','DESC')
         ->get();
 
