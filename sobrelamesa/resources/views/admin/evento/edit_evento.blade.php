@@ -191,10 +191,18 @@
                             <div class="card-body p-0">
                                 <div class="row" style="margin: 10px;">
                                 <div class="col-xs-12 col-sm-6 col-md-4">
+                                    {{-- @if (empty($fecha_cotizacion)) --}}
+                                    @if (isset($fecha_cotizacion))
                                     <div class="form-group">
-                                        <label for="name">Fecha Cotización</label>
-                                        <input type="date" class="form-control" id="fecha_cotizacion" name="fecha_cotizacion" value="{{date('Y-m-d')}}" disabled />
-                                    </div>
+                                      <label for="name">Fecha Cotización </label>
+                                      <input type="date" class="form-control" id="fecha_cotizacion" name="fecha_cotizacion" disabled />
+                                  </div>
+                                    @else
+                                    <div class="form-group">
+                                      <label for="name">Fecha de Actualización de la Cotización </label>
+                                      <input type="date" class="form-control" id="fecha_cotizacion" name="fecha_cotizacion" value="fecha_cotizacion"  />
+                                  </div>
+                                    @endif
                                 </div>
 
                                 <div class="col-xs-12 col-sm-6 col-md-4">
@@ -354,7 +362,7 @@
 
                                     <div class="col-xs-12 col-sm-4 col-md-2 col-lg-3" style="margin-top: 8px;">
                                       <button class="btn btn-success btn-xs" onclick="agregar_producto(0,2)"> <i class="fas
-                                          fa-plus"></i> Agregar una Sección</button>
+                                          fa-plus"></i> Agregar Nota o Sección</button>
 
                                           <!--<button class="btn btn-primary btn-xs" onclick="agregar_producto(0,2)"> <i class="fas
                                           fa-plus"></i> Agregar Nota </button>-->
@@ -374,6 +382,7 @@
                                         <thead>
                                             <tr style="background-color: #d8d9e2;">
                                                 <th scope="col"></th>
+                                                {{-- <th scope="col">Disponibilidad</th> --}}
                                                 <th scope="col">Cantidad</th>
                                                 <!--<th scope="col">Clave</th>-->
                                                 <th scope="col">Descripción</th>
@@ -390,6 +399,7 @@
                                                   <i class="fas fa-ellipsis-v"></i>
                                                   <i class="fas fa-ellipsis-v"></i>
                                               </span></td>
+                                              {{-- <td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td> --}}
                                                 <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
                                                 <!--<td style="width: 200px;"><div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                                         <input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%">
@@ -472,6 +482,13 @@
     var list_seccions = [];
     var ban = false;
     var pos_list_venta = 0;
+
+    function Fecha_de_Cotizacion(params) {
+        var fechaW = date(); 
+    var fechacoti = fechaW.getFullYear() + "-" + (fechaW.getMonth() + 1) + "-" + fechaW.getDate();
+    return fechacoti;  
+    }
+   
 
     var tbl_inventario = $('#tbl_inventario').DataTable({
         "language": {
@@ -902,6 +919,7 @@
                   $('#tbl_venta').append(
                       '<tr id="0">'
                       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+                    //  + '<td style="width: 90px;"><input tabindex="1" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
                       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
                       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
                       + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
@@ -958,6 +976,7 @@
   $('#tbl_venta').append(
       '<tr id="0">'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+      + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibiñidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
       + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
@@ -1014,6 +1033,8 @@ function efectuar_pago() {
   Data.append('idCotizacion', <?php echo json_encode($idCotizacion) ?>);
   //Data.append('descuento', $('#descuento').val());
   Data.append('_token', '{{ csrf_token() }}');
+  console.log("Proiductos eliminados" + list_eliminados);
+  console.log("Proiductos eliminados contenido " + list_eliminados_content);
   $.ajax({
       method: 'POST',
       url: "{{route('evento.insert_detalle_evento_edit')}}",
@@ -1038,7 +1059,8 @@ function efectuar_pago() {
               */
 
               //window.open("https://sobre-la-mesa.com/evento");
-              //window.location.href = "https://sobre-la-mesa.com/evento";
+          window.location.href = "https://sobre-la-mesa.com/evento";
+        //      window.location.href = "http://localhost/sobrelamesa/s/slm/evento";
               //window.location.replace
           } else {
               //$().toastmessage('showNoticeToast', '<br>Se requiere abrir caja para realizar la venta');
@@ -1053,6 +1075,7 @@ function reiniciar_venta() {
   $('#tbl_venta').append(
       '<tr id="0">'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+    //  + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
       //+ '<td style="width: 120px;"><input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%"></td>'
       + '<td style="background-color: #f1f3b7"></td>'
@@ -1132,6 +1155,7 @@ if(list_venta[key]['tipo'] == 2){
   $('#tbl_venta').append(
       '<tr id="0">'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+      + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
       + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
@@ -1375,6 +1399,7 @@ function add_lista_venta_(producto) {
                 + '</tr>'
                 );
         $('#tbl_venta').append(contenido_tbl);
+        $('#disponibilidad').focus();
         $('#cantidadX').focus();
         calcular();
     } else if (producto.row_type == 2) {
@@ -1456,6 +1481,7 @@ function reset_table_products(){
     $('#tbl_venta').append(
         '<tr id="0">'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+     //   + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
         + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
         + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
         + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'

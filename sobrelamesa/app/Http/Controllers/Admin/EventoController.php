@@ -16,6 +16,7 @@ use App\ProductoAutorizado;
 use App\DetalleEventoContent;
 use App\Producto;
 use App\Lugar;
+use App\MovimientoStock;
 use Illuminate\Support\Facades\DB;
 use Auth;
 
@@ -102,6 +103,7 @@ class EventoController extends Controller
         ->whereNotNull('precio_reposicion')
         ->whereNotNull('precio_renta')
         ->Where('precio_renta', '>', 0)
+    //    ->Where('precio_reposicion', '>', 0)
     //    ->where('disponible', '>', 0)
         ->orderBy('producto.id','DESC')
         ->get();
@@ -115,6 +117,14 @@ class EventoController extends Controller
             'objectProducto'=>$objectProducto,
             'objectLugar'=>$objectLugar
         ));
+
+        //Esta parte retorna la lista de stock por día
+        $objetoStockDia = MovimientoStock::with('producto')
+        ->get()
+        ->groupBy(function($objetoStockDia){
+            return $objetoStockDia->created_at->format('Y-m-d');
+        });
+        // return view('stock_movements.index', compact('objetoStockDia));
     }
 
     public function form_add_evento(Request $request){

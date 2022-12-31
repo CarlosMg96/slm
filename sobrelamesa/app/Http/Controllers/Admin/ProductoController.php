@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\CategoriaProducto;
+use App\MovimientoStock;
 use Illuminate\Support\Facades\DB;
 use App\Producto;
 use Hamcrest\Core\IsNull;
@@ -63,7 +64,7 @@ class ProductoController extends Controller
         // ->orderBy('producto.id','DESC')
         // ->get();
 
-        // El foreach esta procesando los resultados de la tabla de proiductos
+        // El foreach esta procesando los resultados de la tabla de productos
         foreach ($objectProducto as $key => $producto) {
             /*
                 *AGREGAREMOS LOS DOS NUEVOS VALORES
@@ -233,122 +234,140 @@ class ProductoController extends Controller
         ));
     }
 
+    // public function inventario(){
+    //     //dd(date( 't' ));
+    //     $objectEventosPorMes = DB::table('evento')
+    //     ->where('YEAR(evento.fecha_evento)', 'YEAR(CURRENT_DATE())')
+    //     ->where('MONTH(evento.fecha_evento)', 'MONTH(CURRENT_DATE())')        
+    //     ->select('evento.*')
+    //     ->get();
+
+    //     $fecha = time();
+    //     date_default_timezone_set('America/Mexico_City');
+    //     $fecha_actual = date('d-m-Y', $fecha);
+        
+
+    //     $objectProducto = DB::table('producto')
+    //     ->join('categoria_producto','producto.categoria_producto_id','=','categoria_producto.id')            
+    //     ->where('producto.status',1)        
+    //     ->select(
+    //       'producto.*',
+    //       'categoria_producto.categoria'      
+    //     )
+    //     ->whereNotNull('clave')
+    //     ->orderBy('producto.id','DESC')
+    //     ->get();
+
+    //     $objectEventosPorMes = DB::SELECT(
+    //         'SELECT e.*
+    //         FROM evento e
+    //         WHERE YEAR(e.fecha_evento) = YEAR(CURRENT_DATE())
+    //         AND MONTH(e.fecha_evento) = MONTH(CURRENT_DATE())'            
+    //     );
+
+    //     foreach ($objectEventosPorMes as $key => $value) {
+    //         $objectDetalleEvento = DB::table('detalle_evento')
+    //         ->where('detalle_evento.evento_id', $value->id)        
+    //         ->select('detalle_evento.*')            
+    //         ->get();
+
+    //         $value->detalle_evento = $objectDetalleEvento;            
+    //     }
+    //     //dd($objectEventosPorMes);
+    //     return view('admin.inventario.index')
+    //     ->with('objectProducto',$objectProducto)
+    //     ->with('objectEventosPorMes',$objectEventosPorMes)
+    //     ->with('dias_mes', date( 't' ))
+    //     ->with('mes_actual', date('m'))
+    //     ->with('anio_actual', date('Y'))
+    //     ->with('fecha_actual', $fecha_actual);
+    // }
+
+    // public function config_productos(Request $request){
+    //     /*
+
+    //     $objectCategoriasCatalog = DB::table('categorias')       
+    //     ->select(
+    //       'categorias.*'
+    //     )
+    //     ->get();
+
+
+    //     foreach ($objectCategoriasCatalog as $key => $value) {
+    //         $objectCategoria = new CategoriaProducto();
+    //         $objectCategoria->categoria = $value->nombre;
+    //         $objectCategoria->dias_mantenimiento = $value->dias_mantenimiento;
+    //         $objectCategoria->save();
+    //     }
+
+    //     */
+
+    //     $objectProductosCatalog = DB::table('hoja1')       
+    //     ->select(
+    //       'hoja1.*'
+    //     )
+    //     ->get();
+
+
+    //     foreach ($objectProductosCatalog as $key => $value) {
+    //         $objectCategoriaProducto = DB::table('categoria_producto')            
+    //         ->where('categoria_producto.categoria',$value->categoria_producto)        
+    //         ->select(
+    //           'categoria_producto.*'  
+    //         )
+    //         ->get();
+
+    //         //dd($objectCategoriaProducto);
+
+    //         $objectProducto = new Producto();
+    //         $objectProducto->clave = $value->clave;
+    //         $objectProducto->producto = $value->producto;
+    //         $objectProducto->stock = $value->stock;
+    //         $objectProducto->medidas = $value->medidas;
+    //         $objectProducto->categoria_producto_id = $objectCategoriaProducto[0]->id;
+    //         $objectProducto->precio_renta = $value->precio_renta;
+    //         $objectProducto->reparacion = $value->reparacion;
+    //         $objectProducto->precio_reposicion = $value->precio_reposicion;
+    //         $objectProducto->dias_mantenimiento = $objectCategoriaProducto[0]->dias_mantenimiento;
+    //         $objectProducto->costo = $value->costo;
+    //         $objectProducto->save();
+    //     }
+
+
+        
+
+
+    //     echo json_encode(array(
+    //         'status'=>true,
+    //         'response'=>$objectProductosCatalog,
+    //         'procesados'=>count($objectProductosCatalog),
+    //         //'categoria'=>$objectCategoriaProducto
+    //     ));
+    // }
+
+        
+
     public function inventario(){
-        //dd(date( 't' ));
-        /*$objectEventosPorMes = DB::table('evento')
-        ->where('YEAR(evento.fecha_evento)', 'YEAR(CURRENT_DATE())')
-        ->where('MONTH(evento.fecha_evento)', 'MONTH(CURRENT_DATE())')        
-        ->select('evento.*')
-        ->get();*/
+     $objectStockMove = DB::table('producto')
+     ->join('detalle_evento', 'producto.id', '=', 'detalle_evento.producto_id')
+     ->join('evento', 'detalle_evento.evento_id', '=', 'evento.id')
+     ->join('cliente', 'evento.cliente_id', '=', 'cliente.id')
+     ->select( 'producto.id as id_producto', 'producto.producto', 'producto.stock', 'detalle_evento.cantidad',
+        'detalle_evento.dias', 'evento.id as id_evento', 'evento.cliente_id', 'evento.tipo_evento',
+        'evento.fecha_entrega', 'evento.fecha_recoleccion', 'cliente.nombre_completo'
+     )
+     ->orderBy('id_evento','DESC')
+     ->get();
 
-        $fecha = time();
-        date_default_timezone_set('America/Mexico_City');
-        $fecha_actual = date('Y-m-d', $fecha);
-        
+        return view('admin.inventario.index', compact('objectStockMove'));
 
-        $objectProducto = DB::table('producto')
-        ->join('categoria_producto','producto.categoria_producto_id','=','categoria_producto.id')            
-        ->where('producto.status',1)        
-        ->select(
-          'producto.*',
-          'categoria_producto.categoria'      
-        )
-        ->whereNotNull('clave')
-        ->orderBy('producto.id','DESC')
-        ->get();
-
-        $objectEventosPorMes = DB::SELECT(
-            'SELECT e.*
-            FROM evento e
-            WHERE YEAR(e.fecha_evento) = YEAR(CURRENT_DATE())
-            AND MONTH(e.fecha_evento) = MONTH(CURRENT_DATE())'            
-        );
-
-        foreach ($objectEventosPorMes as $key => $value) {
-            $objectDetalleEvento = DB::table('detalle_evento')
-            ->where('detalle_evento.evento_id', $value->id)        
-            ->select('detalle_evento.*')            
-            ->get();
-
-            $value->detalle_evento = $objectDetalleEvento;            
-        }
-        //dd($objectEventosPorMes);
-        return view('admin.inventario.index')
-        ->with('objectProducto',$objectProducto)
-        ->with('objectEventosPorMes',$objectEventosPorMes)
-        ->with('dias_mes', date( 't' ))
-        ->with('mes_actual', date('m'))
-        ->with('anio_actual', date('Y'))
-        ->with('fecha_actual', $fecha_actual);
-    }
-
-    public function config_productos(Request $request){
-        /*
-
-        $objectCategoriasCatalog = DB::table('categorias')       
-        ->select(
-          'categorias.*'
-        )
-        ->get();
-
-
-        foreach ($objectCategoriasCatalog as $key => $value) {
-            $objectCategoria = new CategoriaProducto();
-            $objectCategoria->categoria = $value->nombre;
-            $objectCategoria->dias_mantenimiento = $value->dias_mantenimiento;
-            $objectCategoria->save();
-        }
-
-        */
-
-        $objectProductosCatalog = DB::table('hoja1')       
-        ->select(
-          'hoja1.*'
-        )
-        ->get();
-
-
-        foreach ($objectProductosCatalog as $key => $value) {
-            $objectCategoriaProducto = DB::table('categoria_producto')            
-            ->where('categoria_producto.categoria',$value->categoria_producto)        
-            ->select(
-              'categoria_producto.*'  
-            )
-            ->get();
-
-            //dd($objectCategoriaProducto);
-
-            $objectProducto = new Producto();
-            $objectProducto->clave = $value->clave;
-            $objectProducto->producto = $value->producto;
-            $objectProducto->stock = $value->stock;
-            $objectProducto->medidas = $value->medidas;
-            $objectProducto->categoria_producto_id = $objectCategoriaProducto[0]->id;
-            $objectProducto->precio_renta = $value->precio_renta;
-            $objectProducto->reparacion = $value->reparacion;
-            $objectProducto->precio_reposicion = $value->precio_reposicion;
-            $objectProducto->dias_mantenimiento = $objectCategoriaProducto[0]->dias_mantenimiento;
-            $objectProducto->costo = $value->costo;
-            $objectProducto->save();
-        }
-
-
-        
-
-
-        echo json_encode(array(
-            'status'=>true,
-            'response'=>$objectProductosCatalog,
-            'procesados'=>count($objectProductosCatalog),
-            //'categoria'=>$objectCategoriaProducto
-        ));
     }
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
-     */
+     */ 
     public function create()
     {
         //
