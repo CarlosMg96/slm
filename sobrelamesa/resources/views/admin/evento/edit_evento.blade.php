@@ -60,6 +60,27 @@
         display: inline-block;
         width: 850px;
     }
+    .precio_publico, .total_prod{
+        background-color: #EDF9FE;
+        background-color: #F8F9DA;
+
+        text-align:right;
+        padding-right:0.5em !important;
+    }
+    .desc_producto {
+        background-color: #FEFDF2;  /* #F8F9DA; #F9EAFE */
+        padding-left:0.6em !important;
+        min-width:300px;
+    }
+    .la_nota {
+        background-color: #fdfdfd;
+        color:#878059;
+        padding-left:0.6em !important;
+        font-size:1.15em;
+    }
+    .cerocero {
+        opacity:0.2;
+    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 @endsection
@@ -145,7 +166,7 @@
             <form id="form_confirm_sobre_vender">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-4">
+                        <div class="col-xs-12 col-sm-12 col-md-4">
                             <div class="form-group">
                                 <label for="name">Contraseña</label>
                                 <input type="password" class="form-control" name="contrasena" id="contrasena">
@@ -386,10 +407,10 @@
                                                 <th scope="col">Cantidad</th>
                                                 <!--<th scope="col">Clave</th>-->
                                                 <th scope="col">Descripción</th>
-                                                <th scope="col">Precio U.</th>
+                                                <th scope="col" style="text-align:right">Precio Unit.</th>
                                                 <th scope="col">Días</th>
                                                 <th scope="col">% Desc</th>
-                                                <th scope="col">Total</th>
+                                                <th scope="col" style="text-align:right">Total</th>
                                                 <th scope="col"></th>
                                             </tr>
                                         </thead>
@@ -399,7 +420,7 @@
                                                   <i class="fas fa-ellipsis-v"></i>
                                                   <i class="fas fa-ellipsis-v"></i>
                                               </span></td>
-                                              {{-- <td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td> --}}
+                                              {{-- <td style="width: 70px;"><input  type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td> --}}
                                                 <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
                                                 <!--<td style="width: 200px;"><div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                                         <input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%">
@@ -482,6 +503,8 @@
     var list_seccions = [];
     var ban = false;
     var pos_list_venta = 0;
+    var isEdit = false;
+    var temp_cantidad = 0;
 
     function Fecha_de_Cotizacion(params) {
         var fechaW = date(); 
@@ -564,7 +587,7 @@
                         '<option value="99999">Bodega de SML</option>'
                     );
 
-                    $('#btn_modal_inventario').text("Consultando Refacciones...");
+                    $('#btn_modal_inventario').text("Consultando Productos...");
                     tbl_inventario.clear().draw();
                     var datos = [];
                     $.each(response.objectProducto, function (key, producto) {                   
@@ -733,9 +756,9 @@
             success: function(response)
             {    
                 var total_venta = parseFloat($('#total_venta').attr('total'));
-                console.log("Total Global "+total_venta);
-                console.log("Resta Global "+resta_global);
-                console.log("Resta Iva Global "+resta_iva_global);
+                // console.log("Total Global "+total_venta);
+                // console.log("Resta Global "+resta_global);
+                // console.log("Resta Iva Global "+resta_iva_global);
                 var resta_servicios = (total_venta - resta_global) - resta_iva_global;
                 $('#total_venta').attr('total', resta_servicios);
                 $('#total_venta').text(formato_moneda(resta_servicios));                
@@ -767,9 +790,9 @@
                 $('#idCard').CardWidget('collapse');
                 $('#idCard').CardWidget('collapse');
                 //$('#cantidadX').focus();
-                console.log("Total Venta "+total_venta);
+                // console.log("Total Venta "+total_venta);
                 total_venta += (parseFloat($('#flete').val()) + parseFloat($('#montaje').val()) + parseFloat($('#lavado_desinfeccion').val())) * 0.16;
-                console.log("Total Venta 2 "+total_venta);
+                // console.log("Total Venta 2 "+total_venta);
     
                 $('#total_venta').attr('total', total_venta);
                 $('#total_venta').text(formato_moneda(total_venta));
@@ -780,6 +803,62 @@
             }
         });
     });
+
+    $("#form_confirm_sobre_vender").submit(function (e) {
+    e.preventDefault();
+    var pwds = "{{Auth::user()->pwds}}";
+    console.log(pwds);
+    if ($('#contrasena').val() == pwds) {
+        if (isEdit) {
+            list_venta[$('#key').val()].cantidad = temp_cantidad;
+            list_venta[$('#key').val()].status_autorizado = true;
+            if (list_venta[$('#key').val()].descuento === null || list_venta[$('#key').val()].descuento === 'null' || list_venta[$('#key').val()].descuento === '' || list_venta[$('#key').val()].descuento === 0) {
+                $('#total' + $('#key').val()).text(formato_moneda((temp_cantidad * list_venta[$('#key').val()].precio_publico) * list_venta[$('#key').val()].dias));
+            } else {
+                var porcentaje = parseInt(list_venta[$('#key').val()].descuento) / 100;
+                var resta = parseInt(((temp_cantidad * parseInt(list_venta[$('#key').val()].precio_publico)) * list_venta[$('#key').val()].dias)) * porcentaje;
+                var precio_final = ((temp_cantidad * parseInt(list_venta[$('#key').val()].precio_publico)) * list_venta[$('#key').val()].dias) - resta;
+                $('#total' + $('#key').val()).text(formato_moneda(precio_final));
+            }
+            calcular();
+            $('#contrasena').val('');
+            isEdit = false;
+            temp_cantidad = 0;
+            $('#modal_confirm_sobre_vender').modal('hide');
+            $('#modal_inventario').modal('hide');
+        } else {
+            var id = parseInt(list_productos[$('#key').val()]['id']);
+            var cantidad = $('#cantidadX').val();
+            var descuento = $('#descuentoX').val();
+            var dias = $('#diasX').val();
+            list_venta.push({
+                'id': id,
+                'key': pos_list_venta,
+                'cantidad': cantidad,
+                'descuento': descuento,
+                'producto': list_productos[$('#key').val()]['producto'],
+                'precio_publico': list_productos[$('#key').val()]['precio_renta'],
+                'stock': list_productos[$('#key').val()]['stock'],
+                'dias': dias,
+                'row_type': 1,
+                'row_position': pos_list_venta,
+                'content_seccion': '',
+                'status_autorizado': true
+            });
+            pos_list_venta++;
+            reset_table_products();
+            $.each(list_venta, function (key, venta) {
+                add_lista_venta_(venta);
+            });
+            $('#modal_confirm_sobre_vender').modal('hide');
+            $('#modal_inventario').modal('hide');
+        }
+    } else {
+        toastr.error('¡La contraseña es incorrecta!');
+    }
+
+});
+
 
     function modal_inventario() {
       $('#modal_inventario').modal('show');
@@ -894,7 +973,8 @@
                     console.log("Entro en el if donde hay stock");
                   var cantidad = $('#cantidadX').val();
                   var descuento = $('#descuentoX').val();
-                  var dias = $('#diasX').val();        
+                  var dias = $('#diasX').val();   
+
                   list_venta.push({
                       'id': id,
                       'key': pos_list_venta,
@@ -911,18 +991,18 @@
                       'tipo': 1,
                   });
 
-
                   pos_list_venta ++;
                   //add_lista_venta_(list_venta[list_venta.length - 1]);          
-                console.log(list_venta);
+                console.log('::: list_venta='+list_venta);
+                console.log('::: pos_list_venta='+pos_list_venta);
                   $('#tbl_venta').empty();
                   $('#tbl_venta').append(
-                      '<tr id="0">'
+                      '<tr id="0" class=cerocero>'
                       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-                    //  + '<td style="width: 90px;"><input tabindex="1" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
+                 //     + '<td style="width: 70px;"><input tabindex="4" type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>'
                       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
                       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
-                      + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
+                      + '<td style="background-color: #bbbbff; opacity: .5;"></td>'
                       +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
                       + '<td style="width: 100px;"><input tabindex="2" type="numer" id="descuentoX" class="form-control form-control-sm focusNext" style="width: 100px"></td>'
                       + '<td style="background-color: #b7f3b7; opacity: .5;"><span id="total0"></span></td>'
@@ -936,9 +1016,9 @@
                   });
               } else {
                 if(parseInt($('#cantidadX').val()) == 0){
-                    toastr.warning('Ingrese una cantidad válida')
+                    toastr.warning('Ingresa una cantidad válida')
                 }else if(parseInt($('#cantidadX').val()) > parseInt(list_productos[key]['stock'])){
-                    toastr.warning('La sucursal no cuenta con suficientes, estan '+ parseInt(list_productos[key]['stock']) +' en existencia')                    
+                    toastr.warning('No se cuenta con suficientes productos. Tenemos '+ parseInt(list_productos[key]['stock']) +' en existencia')                    
                 }
             }
             $('#modal_inventario').modal('hide');
@@ -950,9 +1030,6 @@
         } 
 
         }else if(row_type == 2){
-
-
-           
 
             list_venta.push({
                 'id': 0,
@@ -973,8 +1050,9 @@
             //add_lista_venta_(list_venta[list_venta.length - 1]);
 
             $('#tbl_venta').empty();
+
   $('#tbl_venta').append(
-      '<tr id="0">'
+      '<tr id="0"  class=cerocero>'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
       + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibiñidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
@@ -1007,12 +1085,15 @@ function save_content_seccion(key){
     } else {
         x.style.display = "none";
     }
-    $('#lbl_content_secccion_'+key).text($('#content_seccion_'+key).val());
+    // frank
+    var text0 = $('#content_seccion_'+key).val();
+    $('#lbl_content_secccion_'+key).text(text0);
+    $('#lbl_content_secccion_'+key).parent().attr('test','prueba1');
+    // $('#lbl_content_secccion_'+key).text($('#content_seccion_'+key).val());
 }
 
 
 function efectuar_pago() {
-    console.log(list_venta);
     //list_venta.sort((a, b) => b.key - a.key);
     //list_venta.reverse();
     /*$.each(list_venta, function (key, venta) {
@@ -1021,9 +1102,12 @@ function efectuar_pago() {
   var cliente_id = $('#select_cliente_id').val();
   var checkBox = document.getElementById("myCheck");
   var Data = new FormData();
+
   let tipo = $('#select_tipo_venta').val();
   var evento_id = $('#evento_id').val();
   Data.append('productos', JSON.stringify(list_venta));
+    console.log(' :: list venta:');
+    console.log(list_venta);
   Data.append('productos_eliminados', JSON.stringify(list_eliminados));
   Data.append('productos_eliminados_content', JSON.stringify(list_eliminados_content));
   Data.append('tipo', tipo);
@@ -1031,10 +1115,13 @@ function efectuar_pago() {
   Data.append('evento_id', <?php echo json_encode($idCotizacion) ?>);
   Data.append('iva', true);
   Data.append('idCotizacion', <?php echo json_encode($idCotizacion) ?>);
-  //Data.append('descuento', $('#descuento').val());
+//   $('#stock_dia').val($stock_dia);
+//   Data.append('stock_dia', $('#stock_dia').val());
   Data.append('_token', '{{ csrf_token() }}');
-  console.log("Proiductos eliminados" + list_eliminados);
-  console.log("Proiductos eliminados contenido " + list_eliminados_content);
+  console.log("Productos eliminados" + list_eliminados);
+  console.log("Productos eliminados contenido " + list_eliminados_content);
+
+
   $.ajax({
       method: 'POST',
       url: "{{route('evento.insert_detalle_evento_edit')}}",
@@ -1049,14 +1136,12 @@ function efectuar_pago() {
           if (response.status) {
               //$().toastmessage('showSuccessToast', "<br>Venta realizada");
               
-              /*$('#rep_venta_id').val(evento_id);
-              $('#btn_rep_venta').trigger('click');
-              reiniciar_venta();
-              btn_act_desac();
-              $('#lbl_url_seguimiento').val(response.short_url);
-              $('#modal_enviar_url').modal('show');
-
-              */
+              // $('#rep_venta_id').val(evento_id);
+              // $('#btn_rep_venta').trigger('click');
+              // reiniciar_venta();
+              // btn_act_desac();
+              // $('#lbl_url_seguimiento').val(response.short_url);
+              // $('#modal_enviar_url').modal('show');
 
               //window.open("https://sobre-la-mesa.com/evento");
           window.location.href = "https://sobre-la-mesa.com/evento";
@@ -1066,16 +1151,19 @@ function efectuar_pago() {
               //$().toastmessage('showNoticeToast', '<br>Se requiere abrir caja para realizar la venta');
           }
       }
-  })
+  }) // -- ajax
+
+
+
 }
 
 function reiniciar_venta() {
   list_venta = [];
   $('#tbl_venta').empty();
   $('#tbl_venta').append(
-      '<tr id="0">'
+      '<tr id="0" class=cerocero>'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-    //  + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
+  //    + '<td style="width: 70px;"><input tabindex="4" type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
       //+ '<td style="width: 120px;"><input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%"></td>'
       + '<td style="background-color: #f1f3b7"></td>'
@@ -1153,9 +1241,9 @@ if(list_venta[key]['tipo'] == 2){
   pos_list_venta --;
       $('#tbl_venta').empty();
   $('#tbl_venta').append(
-      '<tr id="0">'
+      '<tr id="0"  class=cerocero>'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-      + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+  //    + '<td style="width: 70px;"><input tabindex="4" type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>'
       + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
       + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
@@ -1180,7 +1268,7 @@ if(list_venta[key]['tipo'] == 2){
 function myFunction() {
     var checkBox = document.getElementById("myCheck");
     var total_venta = parseFloat($('#total_venta').attr('total'));
-    console.log(total_venta);
+    // console.log(total_venta);
     if(total_venta > 0){
         if (checkBox.checked == true){
             var iva = total_venta * 0.16;
@@ -1203,6 +1291,7 @@ function myFunction() {
 function change_cantidad(key) {
 key = list_venta.map(e => e.key).indexOf(key);
   var cantidad = parseInt($('#cantidad' + key).val());//Asignamos la nueva cantidad a variable
+  isEdit = true;
   if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
     //toastr.warning('La cantidad no puede ser mayor al stock existente');
     $('#key').val(key);
@@ -1302,7 +1391,7 @@ function calcular(){
         lavado_desinfeccion = parseInt($('#lavado_desinfeccion').val());
     }
     var total_venta = 0;
-    console.log('flete '+flete+' montaje '+montaje+' lavado_desinfeccion '+lavado_desinfeccion);
+    //console.log('flete '+flete+' montaje '+montaje+' lavado_desinfeccion '+lavado_desinfeccion);
     $.each(list_venta, function (key, venta) { 
         if (venta.descuento === null || venta.descuento === 'null' || venta.descuento === '' || venta.descuento === 0) {
            total_productos += ((parseInt(venta.cantidad) * parseInt(venta.precio_publico)) * venta.dias);
@@ -1313,14 +1402,14 @@ function calcular(){
           total_productos += precio_final;
         }
     });
-    console.log('total_productos '+total_productos);
+    // console.log('total_productos '+total_productos);
     total_venta = parseInt(total_productos) + parseInt(flete) + parseInt(montaje) + parseInt(lavado_desinfeccion);
-    console.log('total_venta '+total_venta);  
+    // console.log('total_venta '+total_venta);  
     if (config_iva == 1){
         var iva = total_venta * 0.16;
-        console.log('iva '+iva);
+        // console.log('iva '+iva);
         total_venta = total_venta + iva;
-        console.log('total_venta '+total_venta);
+        // console.log('total_venta '+total_venta);
         $('#total_venta').attr('total', total_venta);
         $('#total_venta').text(formato_moneda(total_venta));
     }else if(config_iva == 0){
@@ -1386,20 +1475,24 @@ function add_lista_venta_(producto) {
             resta = parseInt(((producto.cantidad * parseInt(producto.precio_publico)) * producto.dias)) * porcentaje;
             precio_final = ((producto.cantidad * parseInt(producto.precio_publico)) * producto.dias) - resta;
         }
+        
+        // frank: Aquí inicializa y dibuja la tabla
+
         $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+        //        + '<td class=total_prod><span id=stock_dia value=stock_dia></span></td>'
                 + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="1" value="' + producto.cantidad + '" style="width:70px;"></td>'
-                + '<td style="background-color: #f1f3b7"> ' + producto.producto + '</td>'
-                + '<td style="background-color: #b7f3b7"><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
+                + '<td class=desc_producto> ' + producto.producto + '</td>'
+                + '<td class=precio_publico><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
                 + '<td style="width: 90px;"><input tabindex="2" type="number" id="dias' + (producto.key) + '" onchange="change_dias(' + (producto.key) + ')"  class="form-control form-control-sm" min="1" value="' + producto.dias + '" style="width:70px;"></td>'
                 + '<td><input type="number" id="descuento' + (producto.key) + '" onchange="change_descuento(' + (producto.key) + ')" class="form-control form-control-sm" value="' + descuento + '" style="width:100px;"></td>'
-                + '<td style="background-color: #b7f3b7"><span id="total' + (producto.key) + '">' + formato_moneda(precio_final) + '</span></td>'
+                + '<td class=total_prod><span id="total' + (producto.key) + '">' + formato_moneda(precio_final) + '</span></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
         $('#tbl_venta').append(contenido_tbl);
-        $('#disponibilidad').focus();
+      //  $('#disponibilidad').focus();
         $('#cantidadX').focus();
         calcular();
     } else if (producto.row_type == 2) {
@@ -1410,11 +1503,11 @@ function add_lista_venta_(producto) {
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
-                + '<td style="background-color: #87CEFA;" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="width: 90px;background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
+                + '<td colspan="2" class="la_nota" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                
+                + '<td class=la_nota style="width: 90px;"></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
@@ -1433,11 +1526,10 @@ function add_lista_venta_(producto) {
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
-                + '<td style="background-color: #87CEFA" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="width: 90px;background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
+                + '<td colspan=2 class=la_nota id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                + '<td class=la_nota></td>'
+                + '<td class=la_nota></td>'
+                + '<td class=la_nota></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
@@ -1451,6 +1543,7 @@ $('#tbl_venta').sortable({
     update: function (event, ui) {
         var data = $(this).sortable('serialize');
         var result = $(this).sortable("toArray");
+        console.log(result);
         var new_array_tem = [];
         for (var i = 0; i < result.length; i++) {
             for (var j = 0; j < list_venta.length; j++) {
@@ -1465,11 +1558,16 @@ $('#tbl_venta').sortable({
         list_venta = new_array_tem;
         list_venta.reverse();
         reset_table_products();
+        var lvlen =list_venta.length;
         $.each(list_venta, function (key, venta) {
             venta.key = key;
-            venta.row_position = key;
+            var rpos = lvlen - key; rpos--;
+            //console.log(':: key='+key+'. rpos='+rpos);
+            venta.row_position = rpos;
             add_lista_venta_(venta);
         });
+        console.log('sortable end.');
+        
     }
 });
 
@@ -1479,7 +1577,7 @@ $('#tbl_venta').sortable({
 function reset_table_products(){
     $('#tbl_venta').empty();
     $('#tbl_venta').append(
-        '<tr id="0">'
+        '<tr id="0" class=cerocero>'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
      //   + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
         + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'

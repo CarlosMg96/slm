@@ -63,6 +63,30 @@
     #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
     #sortable li { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; }
     #sortable li span { position: absolute; margin-left: -1.3em; }
+
+
+    .precio_publico, .total_prod{
+        background-color: #EDF9FE;
+        background-color: #F8F9DA;
+
+        text-align:right;
+        padding-right:0.5em !important;
+    }
+    .desc_producto {
+        background-color: #FEFDF2;  /* #F8F9DA; #F9EAFE */
+        padding-left:0.6em !important;
+        min-width:300px;
+    }
+    .la_nota {
+        background-color: #fdfdfd;
+        color:#878059;
+        padding-left:0.6em !important;
+        font-size:1.15em;
+    }
+    .cerocero {
+        opacity:0.2;
+    }
+
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 @endsection
@@ -299,7 +323,7 @@
 
                         <div id="idCard" class="card">
                             <div class="card-header border-transparent">
-                                <h3 class="card-title">Datos del Evento</h3>
+                                <h3 class="card-title">Datos de este Evento</h3>
 
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -491,15 +515,15 @@
                                                 <th scope="col">Cantidad</th>
                                                 <!--<th scope="col">Clave</th>-->
                                                 <th scope="col">Descripción</th>
-                                                <th scope="col">Precio U.</th>
+                                                <th scope="col" style="text-align:right">Precio U.</th>
                                                 <th scope="col">Días</th>
                                                 <th scope="col">% Desc</th>
-                                                <th scope="col">Total</th>
+                                                <th scope="col" style="text-align:right">Total</th>
                                                 <th scope="col"></th>
                                             </tr>
                                         </thead>
                                         <tbody class="todo-list" id="tbl_venta">
-                                            <tr id="row-0">
+                                            <tr id="row-0" class="cerocero">
                                                 <td><span class="handle">
                                                   <i class="fas fa-ellipsis-v"></i>
                                                   <i class="fas fa-ellipsis-v"></i>
@@ -511,6 +535,7 @@
                                                     </div>--><!--<div class="input-group-prepend">
                                                             <div class="input-group-text"><img src="https://img.icons8.com/material/20/000000/question-mark--v1.png"/></div>
                                                           </div><input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%"></td>-->
+
                                                 <td style="background-color: #f1f3b7; opacity: .5;"></td>
                                                 <td style="background-color: #b7f3b7; opacity: .5;"></td>
                                                 <td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
@@ -630,9 +655,12 @@
             processData: false,
             contentType: false,
             beforeSend: function () {
+                console.log('sending..');
             },
             success: function (response) {
+                console.log('ajax success!');
                 if(response.status){
+                    console.log('ajax response status!');
 
                     $('#select_cliente_id').empty();
                     $.each( response.objectCliente, function( key, cliente ) {
@@ -705,6 +733,25 @@
                 }else{
                     toastr.error('¡Ocurrio un error inesperado intentelo nueva mente!');                    
                 }
+            }
+            ,error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                console.log(msg);
             }
         });
     }
@@ -1284,15 +1331,17 @@ function add_lista_venta_(producto) {
             resta = parseInt(((producto.cantidad * parseInt(producto.precio_publico)) * producto.dias)) * porcentaje;
             precio_final = ((producto.cantidad * parseInt(producto.precio_publico)) * producto.dias) - resta;
         }
+
+
         $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="1" value="' + producto.cantidad + '" style="width:70px;"></td>'
-                + '<td style="background-color: #f1f3b7"> ' + producto.producto + '</td>'
-                + '<td style="background-color: #b7f3b7"><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
+                + '<td class=desc_producto> ' + producto.producto + '</td>'
+                + '<td class=precio_publico><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
                 + '<td style="width: 90px;"><input tabindex="2" type="number" id="dias' + (producto.key) + '" onchange="change_dias(' + (producto.key) + ')"  class="form-control form-control-sm" min="1" value="' + producto.dias + '" style="width:70px;"></td>'
                 + '<td><input type="number" id="descuento' + (producto.key) + '" onchange="change_descuento(' + (producto.key) + ')" class="form-control form-control-sm" value="' + descuento + '" style="width:100px;"></td>'
-                + '<td style="background-color: #b7f3b7"><span id="total' + (producto.key) + '">' + formato_moneda(precio_final) + '</span></td>'
+                + '<td class=total_prod><span id="total' + (producto.key) + '">' + formato_moneda(precio_final) + '</span></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
@@ -1304,15 +1353,20 @@ function add_lista_venta_(producto) {
         $('#tbl_venta').empty();
         if(producto.content_seccion != ''){
 
+/*
+.precio_publico, .total_prod
+    .desc_producto 
+    .la_nota 
+    .cerocero
+*/
             $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
-                + '<td style="background-color: #87CEFA;" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="width: 90px;background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
+                + '<td colspan=2 class=la_nota id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
@@ -1459,7 +1513,7 @@ function save_content_seccion(key){
 function reset_table_products(){
     $('#tbl_venta').empty();
     $('#tbl_venta').append(
-        '<tr id="0">'
+        '<tr id="0" class="cerocero">'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
         + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
         + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'

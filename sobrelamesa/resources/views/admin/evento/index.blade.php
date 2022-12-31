@@ -573,14 +573,14 @@
                             <thead>
                                 <tr>
                                     <th>key</th>
-                                    <th>No. Cotización</th>
+                                    <th>N. Cotización</th>
                                     <th>Status Productos</th>
                                     <th>Fecha Cotización</th>
                                     <th>Cliente</th>
                                     <th>Celular</th>                                    
                                     <th>Table Solver</th>
                                     <th>Tipo Evento</th>
-                                    <th>Número Personas</th>
+                                    <th>Num Personas</th>
                                     <th>Status</th>
                                     <th>Fecha Evento </th>
                                     <th>Fecha Entrega</th> 
@@ -640,7 +640,7 @@
         //Date range picker
         $('#reservation').daterangepicker({
             "locale": {
-                "format": "MM/DD/YYYY",
+                "format": "DD/MM/YYYY",
                 "separator": " - ",
                 "applyLabel": "Consultar",
                 "cancelLabel": "Cancelar",
@@ -895,22 +895,25 @@
                         var datatime_entrega = "";
                         var datatime_recoleccion = "";
 
-                        if(evento.fecha_evento != "" && evento.hora_evento != ""){
+                        if(evento.fecha_evento != ""){
+                            if (!evento.hora_evento) {evento.hora_evento="00:00"}
                             datatime_evento = moment(evento.fecha_evento+' '+evento.hora_evento).format('LLLL');
                         }else{
-                            datatime_evento = "Sin fecha u Hora, favor de verificar";
+                            datatime_evento = "Sin fecha, favor de verificar "+evento.fecha_evento;
                         }
 
-                        if(evento.fecha_entrega != "" && evento.hora_entrega != ""){
+                        if(evento.fecha_entrega != ""){
+                            if (!evento.hora_entrega) { evento.hora_entrega="00:00"}
                             datatime_entrega = moment(evento.fecha_entrega+' '+evento.hora_entrega).format('LLLL');
                         }else{
-                            datatime_entrega = "Sin fecha u Hora, favor de verificar";
+                            datatime_entrega = "Sin fecha, favor de verificar "+evento.fecha_entrega;
                         }
 
-                        if(evento.fecha_recoleccion != "" && evento.hora_recoleccion != ""){
+                        if(evento.fecha_recoleccion != ""){
+                            if (!evento.hora_recoleccion) { evento.hora_recoleccion="00:00"}
                             datatime_recoleccion = moment(evento.fecha_recoleccion+' '+evento.hora_recoleccion).format('LLLL');
                         }else{
-                            datatime_recoleccion = "Sin fecha u Hora, favor de verificar";
+                            datatime_recoleccion = "Sin fecha, favor de verificar "+evento.fecha_recoleccion;
                         }
 
                         datos.push(

@@ -19,6 +19,7 @@ use App\Lugar;
 use App\MovimientoStock;
 use Illuminate\Support\Facades\DB;
 use Auth;
+use Carbon\Carbon;
 
 //VARIABLES PARA EL CIFRADO Y DESCIFRADO DE DATOS
 define('METHOD','AES-256-CBC');
@@ -117,14 +118,49 @@ class EventoController extends Controller
             'objectProducto'=>$objectProducto,
             'objectLugar'=>$objectLugar
         ));
+    }
 
-        //Esta parte retorna la lista de stock por día
-        $objetoStockDia = MovimientoStock::with('producto')
-        ->get()
-        ->groupBy(function($objetoStockDia){
-            return $objetoStockDia->created_at->format('Y-m-d');
-        });
-        // return view('stock_movements.index', compact('objetoStockDia));
+    public function availability(){
+        $objectStockMove = DB::table('producto')
+        ->join('detalle_evento', 'producto.id', '=', 'detalle_evento.producto_id')
+        ->join('evento', 'detalle_evento.evento_id', '=', 'evento.id')
+        ->join('cliente', 'evento.cliente_id', '=', 'cliente.id')
+        ->select( 'producto.id as id_producto', 'producto.producto', 'producto.stock', 'detalle_evento.cantidad',
+           'detalle_evento.dias', 'evento.id as id_evento', 'evento.cliente_id', 'evento.tipo_evento',
+           'evento.fecha_entrega', 'evento.fecha_recoleccion', 'cliente.nombre_completo'
+        )
+
+        ->get();
+
+        $disponible = 1;
+        $cliente_uso = "Mariano";
+
+        foreach ($objectStockMove as $item){
+            $fecha_inicio = new Carbon($item->fecha_entrega);
+            $fecha_fin = new Carbon($item->fecha_recoleccion);
+
+            $dias = $fecha_inicio->diffInDays($fecha_fin);
+
+            $product = Producto::find($item->id_producto);
+            $stock_total = $product->stock;
+
+            $stock_disponible = $stock_total - $item->cantidad;
+            $stock_dia = $stock_disponible / $dias;
+
+            view()->share('stock_dia', $stock_dia);
+            //   view()->share(['disponile'=> $disponible, 'cliente_uso' => $cliente_uso]);
+               return view('admin.evento.evento');
+               return view('admin.evento.edit_evento');
+            //   return view('admin.evento.index');
+        }
+
+        // De esta manera enviamos la misma variable a diferentes vistas
+    //     view()->share('result', $result);
+    //  //   view()->share(['disponile'=> $disponible, 'cliente_uso' => $cliente_uso]);
+    //     return view('admin.evento.evento');
+    //     return view('admin.evento.edit_evento');
+   
+        //    return view('admin.evento.evento', compact('objectStockMove'));
     }
 
     public function form_add_evento(Request $request){
