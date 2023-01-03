@@ -86,6 +86,21 @@
     .cerocero {
         opacity:0.2;
     }
+    .stockDisp {
+        width:70px;
+        font-size:1em;
+        text-align:center;
+        border:px;
+        color:#878059;
+        opacity:0.75;
+        background-color: transparent;
+    }
+    #elEvento {
+        width:80px;
+        border:0px;
+        font-size:1.2em;
+        color:gray;
+    }
 
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
@@ -269,7 +284,7 @@
                 </div>
                 <input type="hidden" name="clienteID" id="clienteID">
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btn_confirm_modal"></button>
                 </div>
             </form>
@@ -298,7 +313,7 @@
                 </div>
                 <input type="hidden" name="key" id="key">                
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onmouseup="cancel_over();">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btn_confirm_modal">Autorizar</button>
                 </div>
             </form>
@@ -323,7 +338,9 @@
 
                         <div id="idCard" class="card">
                             <div class="card-header border-transparent">
-                                <h3 class="card-title">Datos de este Evento</h3>
+                                <h3 class="card-title">
+                                    Datos del Evento <input type=text id=elEvento readonly value="">
+                                </h3>
 
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -512,8 +529,8 @@
                                         <thead>
                                             <tr style="background-color: #d8d9e2;">
                                                 <th scope="col"></th>
+                                                <th scope="col">Disp.</th>
                                                 <th scope="col">Cantidad</th>
-                                                <!--<th scope="col">Clave</th>-->
                                                 <th scope="col">Descripción</th>
                                                 <th scope="col" style="text-align:right">Precio U.</th>
                                                 <th scope="col">Días</th>
@@ -706,6 +723,10 @@
                     $('#select_domicilio_entrega').append(
                         '<option value="99999">Bodega de SML</option>'
                     );
+                    
+                    $('#select_domicilio_entrega').append(
+                        '<option value="100000" selected></option>'
+                    ); 
 
 
                     $('#btn_modal_inventario').text("Consultando Refacciones...");
@@ -736,20 +757,13 @@
             }
             ,error: function (jqXHR, exception) {
                 var msg = '';
-                if (jqXHR.status === 0) {
-                    msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status == 404) {
-                    msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
-                    msg = 'Internal Server Error [500].';
-                } else if (exception === 'parsererror') {
-                    msg = 'Requested JSON parse failed.';
-                } else if (exception === 'timeout') {
-                    msg = 'Time out error.';
-                } else if (exception === 'abort') {
-                    msg = 'Ajax request aborted.';
-                } else {
-                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                if (jqXHR.status === 0) {   msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {   msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {   msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {   msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {   msg = 'Time out error.';
+                } else if (exception === 'abort') { msg = 'Ajax request aborted.';
+                } else {    msg = 'Uncaught Error.\n' + jqXHR.responseText;
                 }
                 console.log(msg);
             }
@@ -804,6 +818,7 @@
                 $('#total_venta').attr('total', total_venta);
                 $('#total_venta').text(formato_moneda(total_venta));
                 $('#cantidadX').focus();
+                $('#elEvento').val(response.responseEvento.id);
                 /*$("#form_add_evento")[0].reset();
                 $('#modal_add_evento').modal('hide');
                 get_eventos();*/
@@ -942,7 +957,7 @@ function efectuar_pago() {
       success: function (response) {
           if (response.status) {
               //window.location.href("https://sobre-la-mesa.com/evento");
-              window.location.href = "https://sobre-la-mesa.com/evento";
+              window.location.href = "./evento";
           } else {
               //$().toastmessage('showNoticeToast', '<br>Se requiere abrir caja para realizar la venta');
           }
@@ -1039,11 +1054,31 @@ function myFunction() {
     }  
 }
 
+function cancel_over(){
+    var key=$('#key').val();
+    console.log('cancelar key '+key);
+    var pID=$('#key_'+key).attr('keyid');
+    console.log('cancelar id '+pID);
+    var stockDisp =  $('#stockDisp_'+pID).val();
+    $('#cantidad' + key).val(stockDisp);
+}
+
 function change_cantidad(key) {
     key = list_venta.map(e => e.key).indexOf(key);
     var cantidad = parseInt($('#cantidad' + key).val());//Asignamos la nueva cantidad a variable
+
     console.log(" change_cantidad "+list_venta[key].stock+" "+list_productos[key]['stock']+" cantidad "+cantidad);
-    if(cantidad > list_venta[key].stock || cantidad > parseInt(list_venta[key]['stock'])){
+
+    var pID=$('#key_'+key).attr('keyid');
+    var stockDisp =  $('#stockDisp_'+pID).val();
+    
+//    console.log( 'sobrevender key ('+key+') '+pID+' disp:'+stockDisp );
+//    console.log('stock original:'+list_productos[key]['stock']);
+//    console.log('stock original2:'+list_venta[key]['stock']);
+    temp_cantidad = cantidad;
+  //if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
+  if(cantidad > stockDisp){
+//    if(cantidad > list_venta[key].stock || cantidad > parseInt(list_venta[key]['stock'])){
         $('#key').val(key);
         isEdit = true;
         temp_cantidad = cantidad;
@@ -1336,6 +1371,7 @@ function add_lista_venta_(producto) {
         $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+                + '<td class=total_prod><input readonly class="stockDisp" pid="'+ (producto.id) +'" id="stockDisp_'+ (producto.id) +'" value="1" maxlength=6 ><span keyid='+producto.id+' id=key_'+producto.key+'></span></td>'
                 + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="1" value="' + producto.cantidad + '" style="width:70px;"></td>'
                 + '<td class=desc_producto> ' + producto.producto + '</td>'
                 + '<td class=precio_publico><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
@@ -1348,6 +1384,9 @@ function add_lista_venta_(producto) {
         $('#tbl_venta').append(contenido_tbl);
         $('#cantidadX').focus();
         calcular();
+        setTimeout(function () {
+            get_avail('agregado');
+        }, 1000);
     } else if (producto.row_type == 2) {
         var contenido_tbl = $('#tbl_venta').html();
         $('#tbl_venta').empty();
@@ -1364,6 +1403,7 @@ function add_lista_venta_(producto) {
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
                 + '<td colspan=2 class=la_nota id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                + '<td class=la_nota ></td>'
                 + '<td class=la_nota ></td>'
                 + '<td class=la_nota ></td>'
                 + '<td class=la_nota ></td>'
@@ -1386,11 +1426,11 @@ function add_lista_venta_(producto) {
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
-                + '<td style="background-color: #87CEFA" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="width: 90px;background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
-                + '<td style="background-color: #87CEFA"></td>'
+                + '<td colspan=2 class=la_nota id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
+                + '<td class=la_nota ></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
                 + '</tr>'
                 );
@@ -1408,6 +1448,10 @@ function add_lista_venta_(producto) {
                 + '</tr>'
                 );*/
         $('#tbl_venta').append(contenido_tbl);
+        setTimeout( function() { 
+                    console.log('getting first avail..');
+                    get_avail('doc ready');    
+        }, 400);
     }
 }
 
@@ -1431,10 +1475,14 @@ $('#tbl_venta').sortable({
         list_venta = new_array_tem;
         list_venta.reverse();
         reset_table_products();
+        var lvlen = list_venta.length;
         $.each(list_venta, function (key, venta) {
             venta.key = key;
+            var rpos = lvlen - key; rpos--;
+            venta.row_position = rpos;
             add_lista_venta_(venta);
         });
+        get_avail('sortable');
     }
 });
 
@@ -1515,6 +1563,7 @@ function reset_table_products(){
     $('#tbl_venta').append(
         '<tr id="0" class="cerocero">'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+        + "<td></td>"
         + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
         + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
         + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
@@ -1525,6 +1574,48 @@ function reset_table_products(){
         + '</tr>'
         );
 }
+
+function get_avail(something){
+        console.log('this is one '+something);
+        var eID = $('#elEvento').val();
+
+        var myProds="";
+        $( ".stockDisp" ).each(function( index ) {
+            myProds = myProds+"|"+$( this ).attr('pid');
+        });
+
+        $.ajax({
+            method: 'POST',
+            url: "./xtra/test.php",
+            dataType: 'json',
+            data: {'eID': eID, 'myProds':myProds},
+            beforeSend: function () {
+                console.log('sending get_avail..'+eID);
+            },
+            success: function (response) {
+                console.log('ajax response status!');
+
+                    $.each(response, function (key, avail) {
+                        $('#testDiv').append(key+' - '+avail+'<br>');
+                        $('#stockDisp_'+key).val(avail);
+                    });
+
+            }
+            ,error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) { msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {  msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {  msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') { msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') { msg = 'Time out error.';
+                } else if (exception === 'abort') { msg = 'Ajax request aborted.';
+                } else { msg = 'Uncaught Error.\n' + jqXHR.responseText;}
+                console.log(msg);
+            }
+        });// ajax
+
+        
+    }
 
 </script>
 @endsection

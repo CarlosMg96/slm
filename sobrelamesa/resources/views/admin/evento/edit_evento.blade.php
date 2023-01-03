@@ -81,6 +81,21 @@
     .cerocero {
         opacity:0.2;
     }
+    .stockDisp {
+        width:70px;
+        font-size:1em;
+        text-align:center;
+        border:0px;
+        color:#878059;
+        opacity:0.75;
+        background-color: transparent;
+    }
+    #elEvento {
+        width:80px;
+        border:0px;
+        font-size:1.2em;
+        color:gray;
+    }
 </style>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 @endsection
@@ -176,7 +191,7 @@
                 </div>
                 <input type="hidden" name="key" id="key">                
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onmouseup="cancel_over();">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="btn_confirm_modal">Autorizar</button>
                 </div>
             </form>
@@ -397,13 +412,15 @@
                                     </div>-->
                                 </div>
                             </div>
+                            <div id="testDiv" style="width:100%; border:1px dashed red; padding:2em; display:none">
+                            </div>
                             <div class="card-body">  
                                 <div class="row">                
                                     <table class="table table-hover table-sm" id="tbl_venta_productos">
                                         <thead>
                                             <tr style="background-color: #d8d9e2;">
                                                 <th scope="col"></th>
-                                                {{-- <th scope="col">Disponibilidad</th> --}}
+                                                <th scope="col">Disp</th>
                                                 <th scope="col">Cantidad</th>
                                                 <!--<th scope="col">Clave</th>-->
                                                 <th scope="col">Descripción</th>
@@ -420,7 +437,7 @@
                                                   <i class="fas fa-ellipsis-v"></i>
                                                   <i class="fas fa-ellipsis-v"></i>
                                               </span></td>
-                                              {{-- <td style="width: 70px;"><input  type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td> --}}
+                                              <td style="width: 70px;"><input  type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>
                                                 <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
                                                 <!--<td style="width: 200px;"><div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                                         <input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%">
@@ -506,6 +523,7 @@
     var isEdit = false;
     var temp_cantidad = 0;
 
+
     function Fecha_de_Cotizacion(params) {
         var fechaW = date(); 
     var fechacoti = fechaW.getFullYear() + "-" + (fechaW.getMonth() + 1) + "-" + fechaW.getDate();
@@ -531,7 +549,7 @@
         console.log('document ready');
         get_config();
         $('#datetimepicker1').datetimepicker();
-        $('#fecha_evento').datetimepicker({ icons: { time: 'far fa-clock' } });
+        $('#fecha_evento').datetimepicker({ icons: { time: 'far fa-clock' } });        
     });
 
     function get_config(){
@@ -573,7 +591,7 @@
                     });
 
                     $('#select_domicilio_entrega').empty();
-                    $.each( response.objectLugar, function( key, lugar ) {                        
+                    $.each( response.objectLugar, function( key, lugar ) {                     
                         $('#select_domicilio_entrega').append(
                             '<option value="'+lugar.id+'">'+lugar.direccion+' ('+lugar.nombre+')</option>'
                         );
@@ -616,7 +634,7 @@
         });
     }
 
-    function details_event(){
+    function details_event() {
         var Data = new FormData();
         Data.append('_token', "{{ csrf_token() }}");
         Data.append('id', <?php echo json_encode($idCotizacion) ?>);
@@ -631,7 +649,8 @@
             beforeSend: function () {
             },
             success: function (response){                
-                $('#lbl_title').text('Editar Datos del No. de Evento: 00'+response.responseEvento.id);
+                $('#lbl_title').text('Editar');
+                $('#lbl_title').html('Editar Datos del Evento: <input type=text id=elEvento readonly value="'+response.responseEvento.id+'">');
                 $('#fecha_cotizacion').val(response.responseEvento.fecha_cotizacion);
                 $('#folio_').text(response.responseEvento.fecha_cotizacion);                
                 $("#select_cliente_id option[value="+ response.responseEvento.cliente_id +"]").attr("selected",true);
@@ -653,8 +672,6 @@
                 $('#costo_flete').text('Flete: '+formato_moneda(response.responseEvento.flete));
                 $('#costo_montaje').text('Montaje: '+formato_moneda(response.responseEvento.montaje));
                 $('#costo_lavado').text('Lavado: '+formato_moneda(response.responseEvento.lavado_desinfeccion));
-
-
 
                 $.each(response.responseDetalleEvento, function (key, producto) {
                     //console.log('Stock '+producto.stock);
@@ -712,6 +729,48 @@
                 });
 
 
+                // -- get_avail_all:
+
+                
+
+/*
+                $.ajax({
+                    method: 'POST',
+                    //url: "{{route('evento.get_configuration')}}",
+                    url: "../xtra/test.php",
+                    dataType: 'json',
+                    //processData: false,
+                    //contentType: false,
+                    data: {'eID': response.responseEvento.id },
+                    beforeSend: function () {
+                        console.log('sending get_avail..');
+                    },
+                    success: function (response) {
+                        console.log('ajax success!');
+                        
+                            console.log('ajax response status!');
+                            $('#testDiv').html("Response...");
+                            $('#testDiv').append("<hr>");
+
+                            $.each(response, function (key, avail) {
+                                $('#testDiv').append(key+' - '+avail+'<br>');
+                            });
+
+                            //get_eventos();
+                    }
+                    ,error: function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) { msg = 'Not connect.\n Verify Network.';
+                        } else if (jqXHR.status == 404) {  msg = 'Requested page not found. [404]';
+                        } else if (jqXHR.status == 500) {  msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') { msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') { msg = 'Time out error.';
+                        } else if (exception === 'abort') { msg = 'Ajax request aborted.';
+                        } else { msg = 'Uncaught Error.\n' + jqXHR.responseText;}
+                        console.log(msg);
+                    }
+                });// ajax
+*/                
 
                 list_venta.sort((a, b) => b.row_position - a.row_position);
                 //list_venta.reverse();
@@ -734,9 +793,14 @@
                 resta_global = parseFloat(response.responseEvento.flete) + parseFloat(response.responseEvento.montaje) + parseFloat(response.responseEvento.lavado_desinfeccion);
 
                 resta_iva_global = resta_global * 0.16;*/
-            }
-        });        
-    }
+                setTimeout( function() { 
+                    console.log('getting first avail..');
+                    get_avail('doc ready');    
+                }, 400);
+            } // success
+        });   // ajax     
+        
+    } // details_event
 
     $("#form_edit_evento").submit(function(e){
         e.preventDefault();
@@ -807,6 +871,7 @@
     $("#form_confirm_sobre_vender").submit(function (e) {
     e.preventDefault();
     var pwds = "{{Auth::user()->pwds}}";
+    console.log('temp_cantidad 1 ='+ temp_cantidad);
     console.log(pwds);
     if ($('#contrasena').val() == pwds) {
         if (isEdit) {
@@ -816,9 +881,16 @@
                 $('#total' + $('#key').val()).text(formato_moneda((temp_cantidad * list_venta[$('#key').val()].precio_publico) * list_venta[$('#key').val()].dias));
             } else {
                 var porcentaje = parseInt(list_venta[$('#key').val()].descuento) / 100;
+                console.log('porcentaje ='+ porcentaje);
+                console.log('temp_cantidad ='+ temp_cantidad);
+                console.log('precio_publico ='+ list_venta[$('#key').val()].precio_publico);
+
                 var resta = parseInt(((temp_cantidad * parseInt(list_venta[$('#key').val()].precio_publico)) * list_venta[$('#key').val()].dias)) * porcentaje;
+                console.log('resta ='+ resta);
                 var precio_final = ((temp_cantidad * parseInt(list_venta[$('#key').val()].precio_publico)) * list_venta[$('#key').val()].dias) - resta;
+                console.log('precio_final ='+ precio_final);
                 $('#total' + $('#key').val()).text(formato_moneda(precio_final));
+                console.log('tres');
             }
             calcular();
             $('#contrasena').val('');
@@ -961,6 +1033,7 @@
 
     function agregar_producto(key, row_type){
         console.log('Valor de key '+key+' valor de row_type '+row_type);
+
         if(row_type == 1){//Tipo Producto
             if (parseInt(list_productos[key]['stock']) == 0 || parseInt($('#cantidadX').val()) > parseInt(list_productos[key]['stock'])) {
                 //toastr.warning('Sin existencias')
@@ -1026,7 +1099,12 @@
             btn_act_desac();
             setTimeout(function () {
               $('#cantidad_add_venta').val(1)
-          }, 500);
+            }, 500);
+            setTimeout(function () {
+                get_avail('agregado');
+            }, 1000);
+
+
         } 
 
         }else if(row_type == 2){
@@ -1051,25 +1129,26 @@
 
             $('#tbl_venta').empty();
 
-  $('#tbl_venta').append(
-      '<tr id="0"  class=cerocero>'
-      +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-      + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibiñidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
-      + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
-      + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
-      + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
-      +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
-      + '<td style="width: 100px;"><input tabindex="2" type="numer" id="descuentoX" class="form-control form-control-sm focusNext" style="width: 100px"></td>'
-      + '<td style="background-color: #b7f3b7; opacity: .5;"><span id="total0"></span></td>'
-      + '<td></td>'
-      + '</tr>'
-      );
-  $.each(list_venta, function (key, venta) {
-      add_lista_venta_(venta);
-      //total_venta += venta.cantidad * venta.precio_publico;
-  });
+            $('#tbl_venta').append(
+              '<tr id="0"  class=cerocero>'
+              +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
+              + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibiñidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
+              + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+              + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
+              + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
+              +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+              + '<td style="width: 100px;"><input tabindex="2" type="numer" id="descuentoX" class="form-control form-control-sm focusNext" style="width: 100px"></td>'
+              + '<td style="background-color: #b7f3b7; opacity: .5;"><span id="total0"></span></td>'
+              + '<td></td>'
+              + '</tr>'
+            );
+              $.each(list_venta, function (key, venta) {
+                  add_lista_venta_(venta);
+                  //total_venta += venta.cantidad * venta.precio_publico;
+              });
         }
-    }
+
+    } // agregar prod?
 
 
 
@@ -1144,7 +1223,7 @@ function efectuar_pago() {
               // $('#modal_enviar_url').modal('show');
 
               //window.open("https://sobre-la-mesa.com/evento");
-          window.location.href = "https://sobre-la-mesa.com/evento";
+          window.location.href = "../evento";
         //      window.location.href = "http://localhost/sobrelamesa/s/slm/evento";
               //window.location.replace
           } else {
@@ -1233,6 +1312,9 @@ if(list_venta[key]['tipo'] == 2){
 }else if(list_venta[key]['row_type'] == 2){
     list_eliminados_content.push(list_venta[key]['detalle_id']);
 }
+    setTimeout(function () {
+        get_avail('eliminado');
+    }, 600);
 }
 
   
@@ -1287,15 +1369,32 @@ function myFunction() {
     }  
 }
 
+function cancel_over(){
+    var key=$('#key').val();
+    var pID=$('#key_'+key).attr('keyid');
+    var stockDisp =  $('#stockDisp_'+pID).val();
+    $('#cantidad' + key).val(stockDisp);
+}
+
 
 function change_cantidad(key) {
 key = list_venta.map(e => e.key).indexOf(key);
   var cantidad = parseInt($('#cantidad' + key).val());//Asignamos la nueva cantidad a variable
   isEdit = true;
-  if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
+
+    var pID=$('#key_'+key).attr('keyid');
+    var stockDisp =  $('#stockDisp_'+pID).val();
+    
+//    console.log( 'sobrevender key ('+key+') '+pID+' disp:'+stockDisp );
+//    console.log('stock original:'+list_productos[key]['stock']);
+//    console.log('stock original2:'+list_venta[key]['stock']);
+    temp_cantidad = cantidad;
+  //if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
+  if(cantidad > stockDisp){
     //toastr.warning('La cantidad no puede ser mayor al stock existente');
     $('#key').val(key);
     $('#modal_confirm_sobre_vender').modal('show');
+
   }else{
 
     list_venta[key].cantidad = cantidad;//A la lista le ponemos la nueva cantidad
@@ -1307,7 +1406,8 @@ key = list_venta.map(e => e.key).indexOf(key);
       var precio_final = ((cantidad * parseInt(list_venta[key].precio_publico)) * list_venta[key].dias) - resta;
       $('#total' + key).text(formato_moneda(precio_final));//En vista colocamos el nuevo total
   }
-  calcular();
+  
+     calcular();
     
   }
   
@@ -1481,7 +1581,7 @@ function add_lista_venta_(producto) {
         $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-        //        + '<td class=total_prod><span id=stock_dia value=stock_dia></span></td>'
+                + '<td class=total_prod><input readonly class="stockDisp" pid="'+ (producto.id) +'" id="stockDisp_'+ (producto.id) +'" value="1" maxlength=6 ><span keyid='+producto.id+' id=key_'+producto.key+'></span></td>'
                 + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="1" value="' + producto.cantidad + '" style="width:70px;"></td>'
                 + '<td class=desc_producto> ' + producto.producto + '</td>'
                 + '<td class=precio_publico><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
@@ -1495,6 +1595,9 @@ function add_lista_venta_(producto) {
       //  $('#disponibilidad').focus();
         $('#cantidadX').focus();
         calcular();
+        
+        
+
     } else if (producto.row_type == 2) {
         var contenido_tbl = $('#tbl_venta').html();
         $('#tbl_venta').empty();
@@ -1502,10 +1605,10 @@ function add_lista_venta_(producto) {
             $('#tbl_venta').append(
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
-                + '<td></td>'
+                + '<td colspan=2></td>'
                 + '<td colspan="2" class="la_nota" id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
                 
-                + '<td class=la_nota style="width: 90px;"></td>'
+                + '<td class=la_nota ></td>'
                 + '<td class=la_nota ></td>'
                 + '<td class=la_nota ></td>'
                 + '<td><button class="btn btn-danger btn-sm" onclick="btn_eliminar(' + (producto.key) + ')"><i class="fa fa-trash"></i></button></td>'
@@ -1527,6 +1630,7 @@ function add_lista_venta_(producto) {
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td></td>'
                 + '<td colspan=2 class=la_nota id="lbl_content_secccion_' + (producto.key) + '"><div class="input-group" id="div_content_seccion_' + (producto.key) + '"><input tabindex="1" type="text" id="content_seccion_' + (producto.key) + '" class="form-control form-control-sm" autofocus="autofocus" value="' + (producto.content_seccion) + '"><div class="input-group-append"><button onclick="save_content_seccion(' + (producto.key) + ')" class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i></button></div></td>'
+                + '<td class=la_nota></td>'
                 + '<td class=la_nota></td>'
                 + '<td class=la_nota></td>'
                 + '<td class=la_nota></td>'
@@ -1567,6 +1671,7 @@ $('#tbl_venta').sortable({
             add_lista_venta_(venta);
         });
         console.log('sortable end.');
+        get_avail('sortable');
         
     }
 });
@@ -1590,6 +1695,51 @@ function reset_table_products(){
         + '</tr>'
         );
 }
+
+
+// frank
+
+function get_avail(something){
+        console.log('this is one '+something);
+        var eID = $('#elEvento').val();
+
+        var myProds="";
+        $( ".stockDisp" ).each(function( index ) {
+            myProds = myProds+"|"+$( this ).attr('pid');
+        });
+
+        $.ajax({
+            method: 'POST',
+            url: "../xtra/test.php",
+            dataType: 'json',
+            data: {'eID': eID, 'myProds':myProds},
+            beforeSend: function () {
+                console.log('sending get_avail..'+eID);
+            },
+            success: function (response) {
+                console.log('ajax response status!');
+
+                    $.each(response, function (key, avail) {
+                        $('#testDiv').append(key+' - '+avail+'<br>');
+                        $('#stockDisp_'+key).val(avail);
+                    });
+
+            }
+            ,error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) { msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {  msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {  msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') { msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') { msg = 'Time out error.';
+                } else if (exception === 'abort') { msg = 'Ajax request aborted.';
+                } else { msg = 'Uncaught Error.\n' + jqXHR.responseText;}
+                console.log(msg);
+            }
+        });// ajax
+
+        
+    }
 
 
 </script>

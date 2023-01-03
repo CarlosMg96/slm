@@ -129,7 +129,6 @@ class EventoController extends Controller
            'detalle_evento.dias', 'evento.id as id_evento', 'evento.cliente_id', 'evento.tipo_evento',
            'evento.fecha_entrega', 'evento.fecha_recoleccion', 'cliente.nombre_completo'
         )
-
         ->get();
 
         $disponible = 1;
@@ -166,9 +165,10 @@ class EventoController extends Controller
     public function form_add_evento(Request $request){
         $objectEvento = new Evento($request->all());
         $objectEvento->save();    
+        //$objectEvento->id;    
         echo json_encode(array(
             'status'=>true,
-            'responseEvento'=>$objectEvento
+            'responseEvento'=>$objectEvento,
         ));
     }
 
@@ -1132,7 +1132,7 @@ class EventoController extends Controller
     public function details_products_autorizado(Request $request){
             // code...
         $objectProductAutorizado = DB::table('producto_autorizado')
-        ->join('producto', 'producto.id', '=', 'producto_autorizado.evento_id')            
+        ->join('producto', 'producto.id', '=', 'producto_autorizado.producto_id')            
         ->where('producto_autorizado.evento_id', $request->id)
         ->select(
           'producto_autorizado.*',

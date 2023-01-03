@@ -352,11 +352,14 @@ class ProductoController extends Controller
      ->join('detalle_evento', 'producto.id', '=', 'detalle_evento.producto_id')
      ->join('evento', 'detalle_evento.evento_id', '=', 'evento.id')
      ->join('cliente', 'evento.cliente_id', '=', 'cliente.id')
-     ->select( 'producto.id as id_producto', 'producto.producto', 'producto.stock', 'detalle_evento.cantidad',
-        'detalle_evento.dias', 'evento.id as id_evento', 'evento.cliente_id', 'evento.tipo_evento',
+     ->select( 'producto.id as id_producto', 'producto.producto', 'producto.stock',
+      'detalle_evento.cantidad',
+        'detalle_evento.dias', 'evento.id as id_evento', 'evento.cliente_id',
+         'evento.tipo_evento', 'evento.estatus',
         'evento.fecha_entrega', 'evento.fecha_recoleccion', 'cliente.nombre_completo'
      )
-     ->orderBy('id_evento','DESC')
+     ->where('producto.status', '>', 0)
+     ->orderBy('id_producto','ASC')
      ->get();
 
         return view('admin.inventario.index', compact('objectStockMove'));

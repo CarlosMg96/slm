@@ -463,7 +463,7 @@
  </div>
 </div>
 
-<div class="modal" id="modal_view_details_autorizao" tabindex="-1" role="dialog" style="overflow-y: auto;">
+<div class="modal" id="modal_view_details_autorizado" tabindex="-1" role="dialog" style="overflow-y: auto;">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -741,41 +741,41 @@
                         }
 
                         if(evento.status_sobrevendido){
-                            status_sobrevendido = '<span class="badge badge-danger" onclick="get_products_autorizados('+key+')" style="cursor: pointer;">SobreVendido</span>';//#DC3545 -- 0
+                            status_sobrevendido = '<span class="badge badge-danger" onclick="get_products_autorizados('+key+')" style="cursor: pointer;">SobreVendido </span>';//#DC3545 -- 0
                         }else{
-                            status_sobrevendido = '<span class="badge badge-success">Surtido</span>';//#28A745 -- 2
+                            status_sobrevendido = '<span class="badge badge-success">Disponible</span>';//#28A745 -- 2
                         }
 
                         var datatime_evento = "";
                         var datatime_entrega = "";
                         var datatime_recoleccion = "";
 
-                        if(evento.fecha_evento != "" && evento.hora_evento != ""){
+                        if(evento.fecha_evento != ""){
                             datatime_evento = moment(evento.fecha_evento+' '+evento.hora_evento).format('LLLL');
                         }else{
-                            datatime_evento = "Sin fecha u Hora, favor de verificar";
+                            datatime_evento = "Sin fecha, favor de verificar";
                         }
 
-                        if(evento.fecha_entrega != "" && evento.hora_entrega != ""){
+                        if(evento.fecha_entrega != ""){
                             datatime_entrega = moment(evento.fecha_entrega+' '+evento.hora_entrega).format('LLLL');
                         }else{
-                            datatime_entrega = "Sin fecha u Hora, favor de verificar";
+                            datatime_entrega = "Sin fecha, favor de verificar";
                         }
 
-                        if(evento.fecha_recoleccion != "" && evento.hora_recoleccion != ""){
+                        if(evento.fecha_recoleccion != ""){
                             datatime_recoleccion = moment(evento.fecha_recoleccion+' '+evento.hora_recoleccion).format('LLLL');
                         }else{
-                            datatime_recoleccion = "Sin fecha u Hora, favor de verificar";
+                            datatime_recoleccion = "Sin fecha, favor de verificar";
                         }
                    
 
                         listEventos.push(evento);
-                        console.log("Hola mundo");
+                        console.log("linea 773");
                         datos.push(
                             key,
                             '00'+evento.id,
                             status_sobrevendido,                                                     
-                            moment(evento.fecha_cotizacion).format('LLLL'),
+                            moment(evento.fecha_cotizacion).format('LL'),
                             evento.cliente,
                             evento.celular1,                            
                             evento.agente,
@@ -888,7 +888,7 @@
                         if(evento.status_sobrevendido){
                             status_sobrevendido = '<span class="badge badge-danger" onclick="get_products_autorizados('+key+')" style="cursor: pointer;">SobreVendido</span>';//#DC3545 -- 0
                         }else{
-                            status_sobrevendido = '<span class="badge badge-success">Surtido</span>';//#28A745 -- 2
+                            status_sobrevendido = '<span class="badge badge-success">Disponible</span>';//#28A745 -- 2
                         }
 
                         var datatime_evento = "";
@@ -915,12 +915,12 @@
                         }else{
                             datatime_recoleccion = "Sin fecha, favor de verificar "+evento.fecha_recoleccion;
                         }
-
+                        console.log('linea 918');
                         datos.push(
                             key,
                             '00'+evento.id,  
                             status_sobrevendido,                      	                        	
-                        	moment(evento.fecha_cotizacion).format('LLLL'),
+                        	moment(evento.fecha_cotizacion).format('LL'),
                         	evento.cliente,
                             evento.celular1,                            
                         	evento.agente,
@@ -1375,7 +1375,10 @@
         var Data = new FormData();
         Data.append('_token', "{{ csrf_token() }}");
         Data.append('id', listEventos[key].id);
-
+        console.log('key='+key+'. listEventos[key].id='+ listEventos[key].id);
+        console.log('Data =');
+        console.log(Data);
+        console.log('key ='+key);
         $.ajax({    
             method: 'POST',
             url: "{{route('evento.details_products_autorizado')}}",
@@ -1403,7 +1406,7 @@
                         //+'<td>'+formato_moneda(multi)+'</td>'
                         );
                 });
-                $('#modal_view_details_autorizao').modal('show');
+                $('#modal_view_details_autorizado').modal('show');
             }
         });
     }
