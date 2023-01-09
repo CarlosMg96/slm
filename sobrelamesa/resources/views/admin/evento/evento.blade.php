@@ -545,7 +545,7 @@
                                                   <i class="fas fa-ellipsis-v"></i>
                                                   <i class="fas fa-ellipsis-v"></i>
                                               </span></td>
-                                                <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
+                                                <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext"  value="0" min="0" style="width:70px;"></td>
                                                 <!--<td style="width: 200px;"><div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                                         <input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%">
                                                         
@@ -640,6 +640,7 @@
     var ban = false;
     var isEdit = false;
     var temp_cantidad = 0;
+    var cantidadP = 0;
     var tbl_inventario = $('#tbl_inventario').DataTable({
         "language": {
             "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
@@ -1077,7 +1078,8 @@ function change_cantidad(key) {
 //    console.log('stock original2:'+list_venta[key]['stock']);
     temp_cantidad = cantidad;
   //if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
-  if(cantidad > stockDisp){
+    if (cantidad >= 0) {
+        if(cantidad > stockDisp){
 //    if(cantidad > list_venta[key].stock || cantidad > parseInt(list_venta[key]['stock'])){
         $('#key').val(key);
         isEdit = true;
@@ -1094,6 +1096,11 @@ function change_cantidad(key) {
               $('#total' + key).text(formato_moneda(precio_final));//En vista colocamos el nuevo total
         }
         calcular();
+    }
+    } else {
+        cantidad = 0;
+        $('#cantidadX').val(0);
+        toastr.warning('Ingrese una cantidad correcta');
     }
 }
 
@@ -1141,6 +1148,8 @@ function calcular(){
     se valida iva
     se muestra total
     */
+   //console.log(parseInt($('#cantidadX').val()));
+   if (parseInt($('#cantidadX').val()) >= 0) {
     var total_productos = 0;
     var flete;
     if (isNaN(parseInt($('#flete').val()))) {
@@ -1191,6 +1200,10 @@ function calcular(){
     }
     /*$('#total_venta').attr('total', total_venta);
     $('#total_venta').text(formato_moneda(total_venta));*/
+   } else {
+    toastr.warning('Ingrese una cantidad correcta');
+   }
+  
 }
 
 $('#tbl_inventario tbody').on('click', 'tr', function () {
@@ -1278,14 +1291,13 @@ $("#form_add_cliente").submit(function(e){
 
 var pos_list_venta = 0;
 function agregar_producto(key, row_type) {
-    console.log(list_venta);
         if (row_type == 1) {//Tipo Producto
             if (parseInt(list_productos[key]['stock']) == 0 || parseInt($('#cantidadX').val()) > parseInt(list_productos[key]['stock'])) {
                 $('#key').val(key);
                 $('#modal_confirm_sobre_vender').modal('show');
             } else {
                 var id = parseInt(list_productos[key]['id']);
-                if (parseInt($('#cantidadX').val()) > 0 && parseInt($('#cantidadX').val()) <= parseInt(list_productos[key]['stock'])) {
+                if (parseInt($('#cantidadX').val()) >= 0 && parseInt($('#cantidadX').val()) <= parseInt(list_productos[key]['stock'])) {
                     var cantidad = $('#cantidadX').val();
                     var descuento = $('#descuentoX').val();
                     var dias = $('#diasX').val();
@@ -1311,7 +1323,7 @@ function agregar_producto(key, row_type) {
                         add_lista_venta_(venta);
                     });
                 } else {
-                    if (parseInt($('#cantidadX').val()) == 0) {
+                    if (parseInt($('#cantidadX').val()) < 0) {
                         toastr.warning('Ingrese una cantidad válida')
                     } else if (parseInt($('#cantidadX').val()) > parseInt(list_productos[key]['stock'])) {
                         toastr.warning('La sucursal no cuenta con suficientes, estan ' + parseInt(list_productos[key]['stock']) + ' en existencia')
@@ -1564,7 +1576,7 @@ function reset_table_products(){
         '<tr id="0" class="cerocero">'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
         + "<td></td>"
-        + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+        + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" min="0" class="form-control form-control-sm focusNext"  value="0" style="width:70px;"></td>'
         + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
         + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
         + '<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'

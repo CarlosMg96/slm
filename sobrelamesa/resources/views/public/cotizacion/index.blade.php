@@ -527,7 +527,7 @@ setlocale(LC_ALL,"es_CO.utf8");
 
         $.ajax({
             method:'POST',
-            url: "{{route('evento.confirm_evento')}}",
+            url: "{{route('evento.confirm_firma')}}",
             data: Data,
             dataType : 'json',
             processData : false,
@@ -569,7 +569,7 @@ setlocale(LC_ALL,"es_CO.utf8");
           //Si se hace el post pero al vizualizarlo en la base de datos no se muestra
         $.ajax({
             method:'POST',
-            url: "{{route('evento.confirm_evento')}}",
+            url: "{{route('evento.confirm_firma')}}",
             data: Data,
             dataType : 'json',
             processData : false,
@@ -583,7 +583,7 @@ setlocale(LC_ALL,"es_CO.utf8");
                 $("#form_aceptar_cotizacion")[0].reset();
                 signaturePad.clear();
                 signaturePad.on();
-                toastr.success('La cotización fue autorizada con exito');
+                toastr.success('Se ha firmado con exito');
                 $('#btn_autoriza_cotizacion').attr('disabled','disabled');
                 //toastr.success('La cotización fue autorizada con exito');
            //     alert("La cotización fue autorizada con exito");

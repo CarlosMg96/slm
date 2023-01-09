@@ -290,11 +290,12 @@
                     <div class="row">
                     
                     <!--<div class="external-event bg-warning">Go home</div>-->
-                    <div style="cursor: pointer; margin: 5px;" onclick="filter_events(1)" class="external-event bg-info col-md-2">Cotizando</div>
+                    <div style="cursor: pointer; margin: 5px;" onclick="filter_events(1)" class="external-event bg-light col-md-2">Cotizando</div>
                     <div style="cursor: pointer; margin: 5px;" onclick="filter_events(3)" class="external-event bg-primary col-md-2">Autorizado</div>
                     <div style="cursor: pointer; margin: 5px;" onclick="filter_events(2)" class="external-event bg-success col-md-2">Pagado</div>
                     <div style="cursor: pointer; margin: 5px;" onclick="filter_events(0)" class="external-event bg-danger col-md-2">Cancelado</div>
                     <div style="cursor: pointer; margin: 5px;" onclick="filter_events(4)" class="external-event bg-warning col-md-2">C/ Abonos</div>
+                    <div style="cursor: pointer; margin: 5px;" onclick="filter_events(5)" class="external-event bg-secondary col-md-2">C/ Firmados</div>
                     <div style="cursor: pointer; margin: 5px;" onclick="filter_events(100)" class="external-event bg-dark col-md-2">Todos</div>
                     <!--<div class="external-event bg-primary">Work on UI design</div>
                     <div class="external-event bg-danger">Sleep tight</div>
@@ -374,7 +375,7 @@
           listEventos.push(evento);
           var status = '';
           if(evento.estatus == 1){
-            status = '#17A2B8';
+            status = '#c3c3c3';
           }else if(evento.estatus == 2){
             status = '#28A745';
           }
@@ -383,6 +384,9 @@
           }
           else if(evento.estatus == 4){
             status = '#FFC107';
+          }
+          else if(evento.estatus == 5){
+            status = '#6c757d';
           }
           else if(evento.estatus == 0){
             status = '#DC3545';
@@ -680,7 +684,7 @@
         console.log("Evento "+'00'+evento.id+" "+evento.cliente+" "+evento.estatus);
         var status = '';
         if(evento.estatus == 1){
-          status = '#17A2B8';          
+          status = '#c3c3c3';          
         }else if(evento.estatus == 2){
           status = '#28A745';          
         }
@@ -689,6 +693,9 @@
         }
         else if(evento.estatus == 4){
           status = '#FFC107';          
+        }
+        else if(evento.estatus == 5){
+          status = '#808080';          
         }
         else if(evento.estatus == 0){
           status = '#DC3545';          

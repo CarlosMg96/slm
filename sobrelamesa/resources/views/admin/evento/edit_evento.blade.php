@@ -438,7 +438,7 @@
                                                   <i class="fas fa-ellipsis-v"></i>
                                               </span></td>
                                               <td style="width: 70px;"><input  type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>
-                                                <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>
+                                                <td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" value="0" min="0" style="width:70px;"></td>
                                                 <!--<td style="width: 200px;"><div class="input-group mb-2 mr-sm-2 mb-sm-0">
                                                         <input tabindex="2" type="text" class="form-control form-control-sm focusNext" style="width: 100%">
                                                         
@@ -500,6 +500,7 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 <script type="text/javascript">
     $('#menu_evento').attr('class','nav-link active');
+    $('#fa fa-checko').attr('class','fa fa-check');
     var status_modal_inventario = 0;
     var focus_refaccion_id = 0;
     var status_modal = 0;
@@ -522,6 +523,9 @@
     var pos_list_venta = 0;
     var isEdit = false;
     var temp_cantidad = 0;
+    var comparator_ava = false;
+    var llave;
+    
 
 
     function Fecha_de_Cotizacion(params) {
@@ -672,6 +676,7 @@
                 $('#costo_flete').text('Flete: '+formato_moneda(response.responseEvento.flete));
                 $('#costo_montaje').text('Montaje: '+formato_moneda(response.responseEvento.montaje));
                 $('#costo_lavado').text('Lavado: '+formato_moneda(response.responseEvento.lavado_desinfeccion));
+            //    $('#btn_comparator').html('<i class="fa fa-check" aria-hidden="true"></i>');
 
                 $.each(response.responseDetalleEvento, function (key, producto) {
                     //console.log('Stock '+producto.stock);
@@ -819,6 +824,7 @@
             },
             success: function(response)
             {    
+
                 var total_venta = parseFloat($('#total_venta').attr('total'));
                 // console.log("Total Global "+total_venta);
                 // console.log("Resta Global "+resta_global);
@@ -861,6 +867,7 @@
                 $('#total_venta').attr('total', total_venta);
                 $('#total_venta').text(formato_moneda(total_venta));
                 $('#cantidadX').focus();
+              //  $('#btn_pagar').attr('enabled','enabled');
                 /*$("#form_add_evento")[0].reset();
                 $('#modal_add_evento').modal('hide');
                 get_eventos();*/
@@ -924,6 +931,7 @@
             });
             $('#modal_confirm_sobre_vender').modal('hide');
             $('#modal_inventario').modal('hide');
+         //   toastr.success("Se autorizo con exito");
         }
     } else {
         toastr.error('¡La contraseña es incorrecta!');
@@ -1042,7 +1050,7 @@
             }else{
                 console.log("Entro en el else");
                 var id = parseInt(list_productos[key]['id']);
-                if (parseInt($('#cantidadX').val()) > 0 && parseInt($('#cantidadX').val()) <= parseInt(list_productos[key]['stock'])) {
+                if ( parseInt($('#cantidadX').val()) <= parseInt(list_productos[key]['stock'])) {
                     console.log("Entro en el if donde hay stock");
                   var cantidad = $('#cantidadX').val();
                   var descuento = $('#descuentoX').val();
@@ -1073,7 +1081,7 @@
                       '<tr id="0" class=cerocero>'
                       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                  //     + '<td style="width: 70px;"><input tabindex="4" type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>'
-                      + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+                      + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext"  value="0" style="width:70px;"></td>'
                       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
                       + '<td style="background-color: #bbbbff; opacity: .5;"></td>'
                       +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
@@ -1133,7 +1141,7 @@
               '<tr id="0"  class=cerocero>'
               +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
               + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibiñidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;" autofocus="autofocus"></td>'
-              + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+              + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext"  value="0" style="width:70px;"></td>'
               + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
               + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
               +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
@@ -1154,6 +1162,7 @@
 
 
 function save_content_seccion(key){
+ //   $('#btn_pagar').attr('enabled','enabled');
     key = list_venta.map(e => e.key).indexOf(key);
     list_venta[key].content_seccion = $('#content_seccion_'+key).val();    
     $('#content_seccion_'+key).attr('disabled','disabled');
@@ -1213,6 +1222,12 @@ function efectuar_pago() {
       },
       success: function (response) {
           if (response.status) {
+            $('#btn_pagar').attr('disabled','disabled');
+
+            toastr.success('La cotización fue editada con exito');
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
               //$().toastmessage('showSuccessToast', "<br>Venta realizada");
               
               // $('#rep_venta_id').val(evento_id);
@@ -1223,7 +1238,7 @@ function efectuar_pago() {
               // $('#modal_enviar_url').modal('show');
 
               //window.open("https://sobre-la-mesa.com/evento");
-          window.location.href = "../evento";
+        //  window.location.href = "../evento";
         //      window.location.href = "http://localhost/sobrelamesa/s/slm/evento";
               //window.location.replace
           } else {
@@ -1326,7 +1341,7 @@ if(list_venta[key]['tipo'] == 2){
       '<tr id="0"  class=cerocero>'
       +'<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
   //    + '<td style="width: 70px;"><input tabindex="4" type="number" id="stock_dia" class="form-control form-control-sm focusNext"  value="stock_dia" style="width:70px;"></td>'
-      + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+      + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="0" value="0" style="width:70px;"></td>'
       + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
       + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
       +'<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
@@ -1376,11 +1391,31 @@ function cancel_over(){
     $('#cantidad' + key).val(stockDisp);
 }
 
+function availability_comparator(key, row_position) {
+console.log(llave);
+console.log(key);
+
+    if(comparator_ava){
+    //    $('#mi_icono').attr('class','fa fa-check');
+    if (key == llave) {
+        $('#mi_icono').attr('class','fas fa-exclamation-triangle ');
+
+        $('#key').val(key);
+             $('#modal_confirm_sobre_vender').modal('show');
+   
+    }
+    }
+}
+
 
 function change_cantidad(key) {
+        //  $('#btn_pagar').attr('enabled','enabled');
+//  console.log("key2: " + key);
 key = list_venta.map(e => e.key).indexOf(key);
+//  console.log("key2: " + key);
   var cantidad = parseInt($('#cantidad' + key).val());//Asignamos la nueva cantidad a variable
   isEdit = true;
+  llave = key;
 
     var pID=$('#key_'+key).attr('keyid');
     var stockDisp =  $('#stockDisp_'+pID).val();
@@ -1390,13 +1425,19 @@ key = list_venta.map(e => e.key).indexOf(key);
 //    console.log('stock original2:'+list_venta[key]['stock']);
     temp_cantidad = cantidad;
   //if(cantidad > list_venta[key].stock || cantidad > parseInt(list_productos[key]['stock'])){
-  if(cantidad > stockDisp){
+    //<i class="fa fa-check" aria-hidden="true"></i><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+if (cantidad >= 0) {
+    if(cantidad > stockDisp){
     //toastr.warning('La cantidad no puede ser mayor al stock existente');
-    $('#key').val(key);
-    $('#modal_confirm_sobre_vender').modal('show');
+  //  $('.mi_icono').addClass('fa fa-thumbs-o-up');
+   // $('#btn_comparator').val('Warning');
+   $('#mi_icono').attr('class','fas fa-exclamation-triangle ');
+   comparator_ava = true;
 
   }else{
-
+  //  $('#mi_icono').html('<i class="fa fa-check text-success" aria-hidden="true"></i>');
+ //   $('mi_icono').addClass('fa fa-thumbs-o-up');
+    
     list_venta[key].cantidad = cantidad;//A la lista le ponemos la nueva cantidad
   if (list_venta[key].descuento === null || list_venta[key].descuento === 'null' || list_venta[key].descuento === '' || list_venta[key].descuento === 0) {
       $('#total' + key).text(formato_moneda((cantidad * list_venta[key].precio_publico) * list_venta[key].dias));//En vista colocamos el nuevo total      
@@ -1410,6 +1451,11 @@ key = list_venta.map(e => e.key).indexOf(key);
      calcular();
     
   }
+} else {
+    cantidad = 0;
+    $('#cantidadX').val(0);
+    toastr.warning('Ingrese una cantidad correcta');
+}
   
   /*var total_venta = parseFloat($('#total_venta').attr('total'));
   $.each(list_venta, function (key, venta) {
@@ -1422,6 +1468,7 @@ key = list_venta.map(e => e.key).indexOf(key);
 
 
 function change_descuento(key) {
+ //   $('#btn_pagar').attr('enabled','enabled');
      key = list_venta.map(e => e.key).indexOf(key);
   var descuento = parseInt($('#descuento' + key).val());//Asignamos la nueva descuento a variable
   list_venta[key].descuento = descuento;//A la lista le ponemos la nueva descuento
@@ -1443,6 +1490,7 @@ function change_descuento(key) {
 }
 
 function change_dias(key){
+  //  $('#btn_pagar').attr('enabled','enabled');
     key = list_venta.map(e => e.key).indexOf(key);
     var dias = parseInt($('#dias' + key).val());//Asignamos la nueva cantidad a variable
     if(dias == 0){
@@ -1464,6 +1512,7 @@ function change_dias(key){
 }
 
 function calcular(){
+   // $('#btn_pagar').attr('enabled','enabled');
     /*
     Recalcularemos todas las opciones
     Iteramos productos y se valida si trae descuento o no
@@ -1473,6 +1522,7 @@ function calcular(){
     */
     var total_productos = 0;
     var flete;
+   if (parseInt($('#cantidadX').val()) >= 0) {
     if (isNaN(parseInt($('#flete').val()))) {
         flete = 0;
     }else{
@@ -1521,6 +1571,9 @@ function calcular(){
     }
     /*$('#total_venta').attr('total', total_venta);
     $('#total_venta').text(formato_moneda(total_venta));*/
+   } else {
+    toastr.warning('Ingrese una cantidad correcta');
+   }
 }
 
 $('#tbl_inventario tbody').on('click', 'tr', function () {
@@ -1582,7 +1635,7 @@ function add_lista_venta_(producto) {
                 '<tr id="row-' + (producto.key) + '">'
                 + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
                 + '<td class=total_prod><input readonly class="stockDisp" pid="'+ (producto.id) +'" id="stockDisp_'+ (producto.id) +'" value="1" maxlength=6 ><span keyid='+producto.id+' id=key_'+producto.key+'></span></td>'
-                + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="1" value="' + producto.cantidad + '" style="width:70px;"></td>'
+                + '<td><input type="number" id="cantidad' + (producto.key) + '" onchange="change_cantidad(' + (producto.key) + ')" class="form-control form-control-sm" min="0" value="' + producto.cantidad + '" style="width:70px;"><button type="button" id="btn_comparator" onclick="availability_comparator(' + (producto.key) +  ')" class="btn btn-light"><i class="fa fa-check" id="mi_icono"></i></button></td>'
                 + '<td class=desc_producto> ' + producto.producto + '</td>'
                 + '<td class=precio_publico><span>' + formato_moneda(producto.precio_publico) + '</span></td>'
                 + '<td style="width: 90px;"><input tabindex="2" type="number" id="dias' + (producto.key) + '" onchange="change_dias(' + (producto.key) + ')"  class="form-control form-control-sm" min="1" value="' + producto.dias + '" style="width:70px;"></td>'
@@ -1685,7 +1738,7 @@ function reset_table_products(){
         '<tr id="0" class=cerocero>'
         + '<td><span class="handle"><i class="fas fa-ellipsis-v"></i><i class="fas fa-ellipsis-v"></i></span></td>'
      //   + '<td style="width: 90px;"><input tabindex="4" type="number" id="disponibilidad" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
-        + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'
+        + '<td style="width: 90px;"><input tabindex="1" type="number" id="cantidadX" class="form-control form-control-sm focusNext" value="0" min="0" style="width:70px;"></td>'
         + '<td style="background-color: #f1f3b7; opacity: .5;"></td>'
         + '<td style="background-color: #b7f3b7; opacity: .5;"></td>'
         + '<td style="width: 90px;"><input tabindex="2" type="number" id="diasX" class="form-control form-control-sm focusNext" min="1" value="1" style="width:70px;"></td>'

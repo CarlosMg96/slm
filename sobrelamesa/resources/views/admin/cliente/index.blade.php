@@ -446,7 +446,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="tbl_clientes" class="display nowrap cell-border" style="width:100%">
+                        <table id="tbl_clientes" class="display nowrap cell-border" style="width:70%">
                             <thead>
                                 <tr>
                                     <th>Key</th>
@@ -811,6 +811,7 @@
     			$('#modal_add_cliente').modal('hide');
     			get_clientes();
                 if(ban){
+                    location.reload();
                     toastr.success('Cliente Actualizado Con Exito');
                 }else{
                     toastr.success('Cliente Registrado Con Exito');
@@ -1016,7 +1017,7 @@
                         +'<td>'+Difference_In_Days+'</td>'
                         +'<td>'+formato_moneda(producto.precio_renta)+'</td>'
                         +'<td>'+producto.dias+'</td>'
-                        +'<td>'+producto.descuento+'</td>'
+                        +'<td>'+producto.descuento+ '% ' +'</td>'
                         +'<td>'+formato_moneda(multi)+'</td>'
                         );
                 });

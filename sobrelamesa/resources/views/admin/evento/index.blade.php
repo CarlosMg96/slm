@@ -724,19 +724,22 @@
                             ' <button type="button" class="btn btn-info btn-sm" onclick="form_aceptar_cotizacion('+key+')">Confirmar Cotización</button>';
                         var btn_print_revision = '';
                         if(evento.estatus == 1){
-                            status = '<span class="badge badge-info">Cotizado</span>';//#17A2B8 -- 1
+                            status = '<span class="badge badge-light">Cotizado</span>';//#17A2B8 -- 1
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" disabled style="opacity: 0.3; margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         }else if(evento.estatus == 2){
                             status = '<span class="badge badge-success">Pagado</span>';//#28A745 -- 2
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 3){
-                            status = '<span class="badge badge-primary">Autorizado</span>';//#007BFF -- 3
+                            status = '<span class="badge badge-primary">Confirmado</span>';//#007BFF -- 3
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 0){
                             status = '<span class="badge badge-danger">Cancelado</span>';//#DC3545 -- 0
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 4){
                             status = '<span class="badge badge-warning">Cuenta con Abonos</span>';//#FFC107 -- 4
+                            btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
+                        }  else if(evento.estatus == 5){
+                            status = '<span class="badge badge-secondary">Firmado</span>';//#007BFF -- 3
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         }
 
@@ -868,19 +871,22 @@
                         var status_sobrevendido = '';
                         var btn_print_revision = '';
                         if(evento.estatus == 1){
-                            status = '<span class="badge badge-info">Cotizado</span>';//#17A2B8 -- 1
+                            status = '<span class="badge badge-light">Cotizado</span>';//#17A2B8 -- 1
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" disabled style="opacity: 0.3; margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         }else if(evento.estatus == 2){
                             status = '<span class="badge badge-success">Pagado</span>';//#28A745 -- 2
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 3){
-                            status = '<span class="badge badge-primary">Autorizado</span>';//#007BFF -- 3
+                            status = '<span class="badge badge-primary">Confirmado</span>';//#007BFF -- 3
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 0){
                             status = '<span class="badge badge-danger">Cancelado</span>';//#DC3545 -- 0
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         } else if(evento.estatus == 4){
                             status = '<span class="badge badge-warning">Cuenta con Abonos</span>';//#FFC107 -- 4
+                            btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
+                        }else if(evento.estatus == 5){
+                            status = '<span class="badge badge-secondary">Firmado</span>';//#007BFF -- 3
                             btn_print_revision = '<form method="POST" action="{{ route("evento.imprimir_reporte_remision") }}" accept-charset="UTF-8" target="_blank">{!! Form::token() !!}<button id="btn_generate_pdf_remision" type="submit" class="btn btn-primary btn-sm" style="margin-left: 75px;"><i class="fas fa-download"></i> Imprimir Remisión</button><input type="hidden" id="evento_id_reporte" name="evento_id_reporte" value="'+evento.id+'"></form>';
                         }
                         listEventos.push(evento);
@@ -1412,6 +1418,7 @@
     }
 
 
+    //Esta función acepta la cotización con el botón
     function form_aceptar_cotizacion(key){
         var Data = new FormData();
         Data.append('_token',"{{ csrf_token() }}");

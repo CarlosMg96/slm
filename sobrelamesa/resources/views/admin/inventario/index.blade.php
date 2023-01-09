@@ -3,13 +3,15 @@
 @section('title','Sobre La Mesa | Inventario')
 
 @section('css')
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
-<style type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+<link rel="stylesheet"  href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.min.css">
+{{-- <style type="text/css">
     div.dataTables_wrapper {
         width: 900px;
         margin: 0 auto;
     }
-</style>
+</style> --}}
 @endsection
 
 @section('content')
@@ -47,7 +49,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <table id="tbl_categorias" style="width:100%" class="table display nowrap table-bordered table-striped table-sm cell-borde">
+                            <table id="tbl_inventario" style="width:100%" class="table table-striped table-bordered display responsive nowrap" style="width:70%">
                                 <thead>
                                     <tr>
                                         <th>No° Evento</th>
@@ -60,16 +62,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                    
                                 @foreach ($objectStockMove as $item)
-                                    <td>{{ $item->id_evento}} </td>  
-                                    <td>{{ $item->nombre_completo}}</td>
-                                    <td>{{ $item->id_producto }} -> {{ $item->producto}}</td>                               
-                                    <td>{{$item->fecha_entrega}} </td>
-                                    <td>{{$item->fecha_recoleccion}}</td>
-                                    <td>{{ $item->cantidad}}</td>
-                                    <td>{{ $item->stock}} </td>
-                                    <tr>
-                                @endforeach
+                              <tr>
+                                <td>{{ $item->id_evento}} </td>  
+                                <td>{{ $item->nombre_completo}}</td>
+                                <td>{{ $item->id_producto }} -> {{ $item->producto}}</td>                               
+                                <td>{{$item->fecha_entrega}} </td>
+                                <td>{{$item->fecha_recoleccion}}</td>
+                                <td>{{ $item->cantidad}}</td>
+                                <td>{{ $item->stock}} </td>
+                              </tr>
+                                
+                            @endforeach
+                           
                                 </tbody>
                             </table>
                         </div>
@@ -84,9 +90,32 @@
 @endsection
 
 @section('js')
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 console.log("Hola Mundo");
-  console.log(objectStockMov);
+//   console.log(objectStockMov);
+    $(document).ready(function(){
+        $('#tbl_inventario').DataTable( {
+            "language": {
+			"url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/Spanish.json"
+		},
+		"order": [[ 0, "asc" ]],
+        "responsive": true,
+        "columnDefs": [
+            {
+              "targets": [0,0],
+              "visible": false,
+              "searchable": false
+            }
+        ]
+} );
+    });
+//     $('#tbl_inventario').DataTable( {
+//     responsive: true
+// } );
 </script>
 @endsection
+

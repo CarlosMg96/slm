@@ -21,9 +21,9 @@ Route::get('cotizacion/{url}', [
 ]);
 
 
-Route::post('confirm_evento',[
-    'uses'  => 'Admin\EventoController@confirm_evento',
-    'as'    => 'evento.confirm_evento'
+Route::post('confirm_firma',[
+    'uses'  => 'Admin\EventoController@confirm_firma',
+    'as'    => 'evento.confirm_firma'
 ]);
 /*Route::get('/', function () {
     return view('welcome');
@@ -73,6 +73,11 @@ Route::group(['prefix' => '', 'middleware'=>'auth'], function () {
     Route::post('form_add_evento',[
         'uses'  => 'Admin\EventoController@form_add_evento',
         'as'    => 'evento.form_add_evento'
+    ]);
+
+    Route::post('confirm_evento',[
+        'uses'  => 'Admin\EventoController@confirm_evento',
+        'as'    => 'evento.confirm_evento'
     ]);
 
     Route::post('form_edit_evento',[

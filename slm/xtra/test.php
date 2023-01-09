@@ -107,7 +107,7 @@ updated_at
    
 
    $query = "SELECT fecha_entrega, fecha_recoleccion FROM evento WHERE `id` = '$eID' ";
-   $result=mysqli_query($cx,$query) or die(mysqli_error($cx));
+   $result=mysqli_query($cx,$query) or die(mysqli_error($cx)." $query");
    while ($line=mysqli_fetch_array($result)){
       $fe = $line['fecha_entrega'];
       $fr = $line['fecha_recoleccion'];
@@ -124,24 +124,32 @@ updated_at
       }
    }
 
+   
    $query = "SELECT producto_id, cantidad FROM detalle_evento WHERE `evento_id` = '$eID' ";
-   $result=mysqli_query($cx,$query) or die(mysqli_error($cx));
-   // echo "<hr>$query <hr>";
+   $result=mysqli_query($cx,$query) or die(mysqli_error($cx)." $query");
+   
    while ($line=mysqli_fetch_array($result)){
       $Pc[$line['producto_id']] = $line['cantidad'];
-      // echo $line['producto_id']." = ".$line['cantidad']."<br>";
+       //echo $line['producto_id']." = ".$line['cantidad']."<br>";
    }
-
    
+   /*
+0.- Cancelado
+1.- Cotizado
+2.- Pagado
+3.- Autorizado
+4.- Pagado en abonos
+5.- Firmado
+   */
 
    $Ev = array();
    $query = "SELECT id, fecha_entrega, fecha_recoleccion FROM evento";
    $query .= " WHERE ((fecha_entrega >= '$fe' AND fecha_entrega <= '$fr') ";
    $query .= " OR (fecha_recoleccion >= '$fe' AND fecha_entrega <= '$fr')) ";
-   $query .= " AND id != '$eID' AND `estatus` > 0";
+   $query .= " AND id != '$eID' AND `estatus` > 1 AND `estatus` < 5";
 
    // echo "<hr>$query <hr>";
-   $result=mysqli_query($cx,$query) or die(mysqli_error($cx));
+   $result=mysqli_query($cx,$query) or die(mysqli_error($cx)." $query");
    while ($line=mysqli_fetch_array($result)){
       $Ev[$line['id']]=$line['fecha_entrega'].' | '.$line['fecha_recoleccion'];
       // echo "Ev[".$line['id']."] = ".$line['fecha_entrega'].' | '.$line['fecha_recoleccion']."<br>";
@@ -161,16 +169,21 @@ updated_at
    $Stock = array();
    $query = "SELECT id, stock FROM producto WHERE id IN ($prods) ";
    // echo "<hr>$query <hr>";
-   $result=mysqli_query($cx,$query) or die(mysqli_error($cx));
+   $result=mysqli_query($cx,$query) or die(mysqli_error($cx)." $query");
    while ($line=mysqli_fetch_array($result)){
       $Stock[$line['id']] = $line['stock'];
       // echo $line['id']." - ".$line['stock']."<br>";
    }
 
+
+
    $Used = array();
+
+   if (!empty($eventos)){
+
    $query = "SELECT producto_id, cantidad, evento_id FROM detalle_evento WHERE producto_id IN ($prods) AND evento_id IN ($eventos) ";
    // echo "<hr>$query <hr>";
-   $result=mysqli_query($cx,$query) or die(mysqli_error($cx));
+   $result=mysqli_query($cx,$query) or die(mysqli_error($cx)." $query");
    while ($line=mysqli_fetch_array($result)){
       if (empty($Used[$line['producto_id']])) {
          $Used[$line['producto_id']] = 0;
@@ -178,6 +191,9 @@ updated_at
       $Used[$line['producto_id']] += $line['cantidad'];
       // echo "Used[".$line['producto_id']."] += ".$line['cantidad']." (ev ".$line['evento_id'].")<br>";
    }
+
+   }
+   
 
    $Avail = array();
 

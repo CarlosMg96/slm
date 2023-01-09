@@ -173,6 +173,38 @@ class EventoController extends Controller
     }
 
     public function get_eventos(){
+
+        // $ObjetoAutorizado = DB::delete("
+        // DELETE FROM producto_autorizado
+        // WHERE (producto_id, evento_id, created_at) NOT IN
+        // (
+        //     SELECT producto_id, evento_id, MAX(created_at)
+        //     FROM producto_autorizado 
+        // );
+        // ");
+
+    //     $ObjectDuplicato = DB::table('producto_autorizado')
+    //     ->select('producto_id, evento_id', 'created_at')
+    //   //  ->where('evento_id', 'evento_id')
+    //     ->orderBy('created_at', 'desc')
+    //     ->get();
+
+    //     $productosAGuardar = [];
+    //     foreach($ObjectDuplicato as $producto){
+    //       //   if (!in_array($producto->producto_id, $productosAGuardar)) {
+    //              $productosAGuardar[] = $producto->id_producto;
+    //       //   }
+    //     }
+
+    //     DB::table('producto_autorizado')
+    // //    ->where('evento_id', 'evento_id')
+    //     ->whereIn('producto_id', function($query) {
+    //         $query->select('producto_id')
+    //           ->from('producto_autorizado');
+    //     })
+    //     ->whereNotIn('producto_id', $productosAGuardar)
+    //     ->update();
+
         $objectEvento = DB::table('evento')
         ->join('cliente','cliente.id','=','evento.cliente_id')
         ->join('users','users.id','=','evento.agente_id')
@@ -188,6 +220,7 @@ class EventoController extends Controller
           'tipo_evento.evento AS evento')
         ->orderBy('evento.id', 'DESC')
         ->get();
+
 
         foreach ($objectEvento as $key => $object) {
             // code...
@@ -209,6 +242,18 @@ class EventoController extends Controller
             'objectEvento'=>$objectEvento            
         ));
     }
+
+    private function delete_products_duplicated(){
+        $ObjetoAutorizado = DB::delete("
+        DELETE FROM producto_autorizado
+        WHERE (producto_id, evento_id, created_at) NOT IN
+        (
+            SELECT producto_id, evento_id, MAX(created_at)
+            FROM producto_autorizado 
+        );
+        ");
+    }
+    
 
     public function get_eventos_range_date(Request $request){
 
@@ -244,6 +289,8 @@ class EventoController extends Controller
             }else{
                 $object->status_sobrevendido = false;
             }
+
+            
         }
 
         echo json_encode(array(
@@ -737,21 +784,23 @@ class EventoController extends Controller
         ));
     }
 
-    public function confirm_evento(Request $request){
+    public function confirm_firma(Request $request){
         //dd($request->all());
     //    print_r($request->all());
 
-        $objectEvento = Evento::find($request->evento_id);
-        $objectEvento->estatus = 3;
-        $objectEvento->save();
+        // $out = new \Symfony\Component\Console\Output\ConsoleOutput();
 
-        echo json_encode(array(
-            'status'=>true,
-        //    'objectEvento'=>$objectEvento
-        ));
+        // $objectEvento = Evento::find($request->evento_id);
+        // $objectEvento->estatus = 5;
+        // $objectEvento->save();
+
+        // echo json_encode(array(
+        //     'status'=>true,
+        // //    'objectEvento'=>$objectEvento
+        // ));
 
 
-
+        // $out->writeln("Función accedida de confirmar evento");
 
 
 
@@ -767,13 +816,29 @@ class EventoController extends Controller
         fclose($file); 
 
         $objectEvento->firma = $image_name.'.png';
-        $objectEvento->estatus = 3;
+        $objectEvento->estatus = 5;
         $objectEvento->save();       
 
-        // echo json_encode(array(
-        //     'status'=>true,
-        //     'objectEvento'=>$objectEvento
-        // ));
+        echo json_encode(array(
+            'status'=>true,
+         //   'objectEvento'=>$objectEvento
+        ));
+    }
+
+    public function confirm_evento(Request $request){
+        //dd($request->all());
+    //    print_r($request->all());
+
+        // $out = new \Symfony\Component\Console\Output\ConsoleOutput();
+
+        $objectEvento = Evento::find($request->evento_id);
+        $objectEvento->estatus = 3;
+        $objectEvento->save();
+
+        echo json_encode(array(
+            'status'=>true,
+         //   'objectEvento'=>$objectEvento
+        ));
     }
 
     public function edit_evento($idCotizacion){
